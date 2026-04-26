@@ -1,6 +1,6 @@
 # 🛡️ Spam Detection Project - AIO Conquer 2026
 
-Dự án nhận diện thư/tin nhắn rác (Spam/Ham) trong thời gian 4 tuần.
+Dự án nhận diện thư/tin nhắn rác (Spam/Ham).
 
 ## 📁 Cấu trúc thư mục (Project Structure)
 
