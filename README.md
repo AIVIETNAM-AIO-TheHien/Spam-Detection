@@ -1,23 +1,41 @@
-# 🛡️ Spam Detection Project - AIO Conquer 2026
+# 🚀 Spam Detection Project - AIO Conquer 2026
 
-Dự án nhận diện thư/tin nhắn rác (Spam/Ham).
+Dự án phát triển hệ thống nhận diện thư và tin nhắn rác (Spam/Ham). Dự án này được thiết kế và quản lý theo tiêu chuẩn MLOps chuyên nghiệp để đảm bảo khả năng mở rộng và làm việc nhóm hiệu quả.
 
-## 📁 Cấu trúc thư mục (Project Structure)
+---
 
-Dự án được tổ chức theo chuẩn MLOps chuyên nghiệp:
+## 📁 Cấu trúc dự án (Project Structure)
 
-* [cite_start]**`configs/`**: Chứa các file cấu hình thông số (YAML/JSON)[cite: 383]. [cite_start]Mọi experiment chạy từ đây, không hardcode[cite: 388].
-* [cite_start]**`docs/`**: Chứa tài liệu hướng dẫn, API docs, báo cáo dự án[cite: 383].
-* [cite_start]**`experiments/`**: Nơi lưu lại logs, kết quả của các lần chạy thí nghiệm mô hình[cite: 383].
-* [cite_start]**`notebooks/`**: Các file Jupyter Notebook dùng để explore data, phân tích thử nghiệm nhanh[cite: 383].
-* [cite_start]**`scripts/`**: Chứa các file script chạy một lần (ví dụ: cào data, setup môi trường)[cite: 383].
-* [cite_start]**`src/`**: Thư mục chứa mã nguồn chính của dự án[cite: 383].
-    * [cite_start]`data/`: Code tiền xử lý và nạp dữ liệu[cite: 383].
-    * [cite_start]`models/`: Định nghĩa các kiến trúc mô hình (Baseline, LSTM, Transformer...)[cite: 383].
-    * [cite_start]`training/`: Luồng huấn luyện mô hình (Training loops)[cite: 383].
-    * [cite_start]`evaluation/`: Code chứa logic đánh giá mô hình[cite: 383].
-    * [cite_start]`utils/`: Các hàm tiện ích dùng chung[cite: 383].
-* [cite_start]**`tests/`**: Chứa các unit tests để kiểm tra code (bao gồm cả data tests)[cite: 383].
+Dự án được phân chia thư mục rõ ràng, tuyệt đối tuân thủ cấu trúc sau:
 
-## 🚀 Hướng dẫn cài đặt (Setup)
-*(Sẽ cập nhật sau khi team chốt danh sách thư viện)*
+* `configs/`: Chứa các file cấu hình thông số (YAML/JSON). Mọi experiment phải được chạy dựa trên config từ đây, **không hardcode** thông số vào source code.
+* `docs/`: Chứa tài liệu hướng dẫn, API docs, báo cáo dự án.
+* `experiments/`: Nơi lưu lại logs, kết quả của các lần chạy thí nghiệm mô hình.
+* `notebooks/`: Các file Jupyter Notebook dùng để explore data và phân tích thử nghiệm nhanh.
+* `scripts/`: Chứa các file script chạy một lần (ví dụ: cào data, setup môi trường).
+* `src/`: Thư mục chứa mã nguồn chính của dự án.
+    * `data/`: Code tiền xử lý và nạp dữ liệu.
+    * `models/`: Định nghĩa các kiến trúc mô hình (Baseline, LSTM, Transformer...).
+    * `training/`: Luồng huấn luyện mô hình (Training loops).
+    * `evaluation/`: Code chứa logic đánh giá mô hình.
+* `utils/`: Các hàm tiện ích dùng chung.
+* `tests/`: Chứa các unit tests để kiểm tra code (bao gồm cả data tests).
+
+---
+
+## 👥 Quy trình làm việc của Team (Workflow)
+
+Để đảm bảo source code luôn sạch và không bị lỗi vặt, toàn bộ team (5 thành viên) thống nhất tuân thủ quy trình làm việc trên GitHub như sau:
+
+1.  **Bảo vệ nhánh chính (`main`)**: Nhánh `main` đã được khóa. **Nghiêm cấm và không thể** `git push` trực tiếp lên nhánh này.
+2.  **Tạo nhánh mới (Branching)**: Mỗi khi làm một task mới (thêm model, sửa lỗi, xử lý data...), hãy tạo một branch mới từ `main`. 
+    * *Ví dụ: `feature/lstm-model` hoặc `fix/data-bug`.*
+3.  **Tạo Pull Request (PR)**: Sau khi code xong trên nhánh của mình, hãy đẩy lên GitHub và tạo một Pull Request. Hệ thống sẽ tự động hiện ra một bảng Checklist, yêu cầu điền đầy đủ thông tin.
+4.  **Review và Merge**: PR cần ít nhất **1 lượt Approve** (từ Leader hoặc thành viên khác được chỉ định) mới có quyền gộp (Merge) vào nhánh `main`.
+5.  **Báo cáo & Đề xuất**: Nếu gặp lỗi hoặc muốn đề xuất tính năng mới, hãy vào tab **Issues** trên GitHub và chọn đúng mẫu (`Bug report` hoặc `Feature request`) để điền.
+
+---
+
+## ⚙️ Hướng dẫn cài đặt (Setup)
+
+*(Phần này sẽ được cập nhật sau khi team chốt danh sách thư viện và dependencies)*
