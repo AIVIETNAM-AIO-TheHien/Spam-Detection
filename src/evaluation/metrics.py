@@ -1,0 +1,36 @@
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+
+
+def compute_classification_metrics(y_true, y_pred, positive_label="spam"):
+    accuracy = accuracy_score(y_true, y_pred)
+
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        y_true,
+        y_pred,
+        average="binary",
+        pos_label=positive_label,
+        zero_division=0,
+    )
+
+    _, _, macro_f1, _ = precision_recall_fscore_support(
+        y_true,
+        y_pred,
+        average="macro",
+        zero_division=0,
+    )
+
+    _, _, weighted_f1, _ = precision_recall_fscore_support(
+        y_true,
+        y_pred,
+        average="weighted",
+        zero_division=0,
+    )
+
+    return {
+        "accuracy": float(accuracy),
+        "macro_f1": float(macro_f1),
+        "weighted_f1": float(weighted_f1),
+        "spam_precision": float(precision),
+        "spam_recall": float(recall),
+        "spam_f1": float(f1),
+    }
