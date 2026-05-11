@@ -11,4 +11,4 @@ __pycache__/
 .ipynb_checkpoints/
 
 experiments/baseline/*.joblib
-Instructions/
+CLAUDE.md
