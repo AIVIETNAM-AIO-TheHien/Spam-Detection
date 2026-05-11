@@ -1,0 +1,14 @@
+data/raw/*
+data/processed/*
+
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+*.pyc
+__pycache__/
+.env
+.venv/
+.ipynb_checkpoints/
+
+experiments/baseline/*.joblib
+CLAUDE.md
