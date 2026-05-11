@@ -1,0 +1,21 @@
+{
+  "model": "multinomial_naive_bayes",
+  "feature_extractor": "tfidf",
+  "split_file": "experiments/splits/split_indices.json",
+  "dev": {
+    "accuracy": 0.9569377990430622,
+    "macro_f1": 0.8921259390950278,
+    "weighted_f1": 0.9533371401570603,
+    "spam_precision": 1.0,
+    "spam_recall": 0.6785714285714286,
+    "spam_f1": 0.8085106382978723
+  },
+  "test": {
+    "accuracy": 0.9641148325358851,
+    "macro_f1": 0.912531562574111,
+    "weighted_f1": 0.9617043993601013,
+    "spam_precision": 1.0,
+    "spam_recall": 0.7321428571428571,
+    "spam_f1": 0.845360824742268
+  }
+}

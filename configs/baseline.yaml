@@ -1,0 +1,33 @@
+data:
+  input_path: "src/data/raw/spam.csv"
+  text_column: "Message"
+  label_column: "Category"
+  positive_label: "spam"
+
+split:
+  indices_path: "experiments/splits/split_indices.json"
+  random_seed: 42
+  train_size: 0.7
+  dev_size: 0.15
+  test_size: 0.15
+  stratify: true
+  shuffle: true
+
+vectorizer:
+  type: "tfidf"
+  max_features: 50000
+  ngram_range: [1, 2]
+  min_df: 2
+  max_df: 0.95
+  lowercase: true
+  strip_accents: "unicode"
+
+model:
+  type: "multinomial_naive_bayes"
+  alpha: 1.0
+
+output:
+  experiment_dir: "experiments/baseline"
+  model_path: "experiments/baseline/model.joblib"
+  vectorizer_path: "experiments/baseline/vectorizer.joblib"
+  metrics_path: "experiments/baseline/metrics.json"
