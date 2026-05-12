@@ -1,0 +1,19 @@
+{
+  "total_samples": 836,
+  "total_errors": 30,
+  "correct": 806,
+  "false_positive": 0,
+  "false_negative": 30,
+  "error_rate": 0.03588516746411483,
+  "error_groups": [
+    {
+      "error_type": "false_negative",
+      "count": 30,
+      "avg_message_length": 121.23333333333333,
+      "avg_word_count": 21.7,
+      "url_count": 4,
+      "digit_count": 24,
+      "spam_keyword_count": 18
+    }
+  ]
+}
