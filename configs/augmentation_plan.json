@@ -1,0 +1,72 @@
+{
+  "domains_to_add": {
+    "spam_phishing": {
+      "description": "Email lừa đảo (giả mạo ngân hàng, PayPal, yêu cầu xác minh tài khoản, v.v.)",
+      "quantity": 1000,
+      "priority": "cao"
+    },
+    "spam_lottery": {
+      "description": "Email trúng thưởng, xổ số, quà tặng miễn phí, kế thừa tài sản",
+      "quantity": 800,
+      "priority": "cao"
+    },
+    "spam_product": {
+      "description": "Quảng cáo sản phẩm không mong muốn (thuốc, tình dục, chứng khoán, v.v.)",
+      "quantity": 800,
+      "priority": "trung bình"
+    },
+    "spam_mlm": {
+      "description": "Email đa cấp, làm giàu nhanh, cơ hội kinh doanh",
+      "quantity": 500,
+      "priority": "trung bình"
+    },
+    "ham_english": {
+      "description": "Email hợp pháp bằng tiếng Anh (đối trọng để tránh mất cân bằng)",
+      "quantity": 1500,
+      "priority": "cao"
+    }
+  },
+  "techniques": {
+    "back_translation": {
+      "description": "Dịch văn bản qua lại giữa tiếng Anh và một ngôn ngữ khác (ví dụ: Pháp, Đức) để tạo biến thể ngữ nghĩa",
+      "libraries": [
+        "transformers (Helsinki-NLP/opus-mt)",
+        "googletrans"
+      ],
+      "cost": "Miễn phí (dùng model mở)",
+      "expected_output": "Mỗi câu gốc sinh ra 2-3 câu mới"
+    },
+    "llm_synthetic": {
+      "description": "Dùng mô hình ngôn ngữ lớn (GPT, Gemini) để sinh email spam mới từ prompt",
+      "prompt_example": "Generate 10 spam emails about lottery scams with urgent tone and fake prize claims",
+      "cost": "~$5/5000 mẫu (Gemini free tier có giới hạn)",
+      "tool": "Google AI Studio hoặc OpenAI API"
+    },
+    "paraphrase": {
+      "description": "Dùng mô hình paraphrase (T5, Pegasus) để diễn đạt lại câu nhưng giữ nguyên ý nghĩa",
+      "libraries": [
+        "pegasus",
+        "t5-paraphrase",
+        "parrot"
+      ],
+      "cost": "Miễn phí (chạy local)",
+      "note": "Cần GPU nếu số lượng lớn"
+    },
+    "rule_based_noise": {
+      "description": "Thêm nhiễu có kiểm soát: thay thế URL, số điện thoại, tên công ty, email giả",
+      "libraries": [
+        "re",
+        "faker"
+      ],
+      "cost": "Miễn phí",
+      "note": "Phù hợp để tạo thêm biến thể từ dữ liệu gốc"
+    }
+  },
+  "total_samples": 4600,
+  "timeline": {
+    "week2": "Collect 200-300 seed samples per domain from public sources",
+    "week3": "Apply back‑translation and paraphrase",
+    "week4": "Generate with LLM and manual quality check"
+  },
+  "notes": "Manually verify 10% of generated samples; keep source metadata."
+}
