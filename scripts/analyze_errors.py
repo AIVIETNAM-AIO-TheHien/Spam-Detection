@@ -10,6 +10,21 @@ from sklearn.metrics import confusion_matrix
 sys.path.append(os.getcwd())
 
 from src.data.validation import validate_file_exists, validate_required_columns
+from src.data.preprocess import clean_text
+
+def preprocess_text_series(texts, preprocess_cfg):
+    texts = texts.fillna("").astype(str)
+
+    if not preprocess_cfg.get("enabled", False):
+        return texts
+
+    clean_kwargs = {
+        key: value
+        for key, value in preprocess_cfg.items()
+        if key != "enabled"
+    }
+
+    return texts.apply(lambda text: clean_text(text, **clean_kwargs))
 
 
 def get_error_type(true_label, predicted_label, positive_label):
@@ -132,122 +147,127 @@ def save_markdown_report(result_df, metrics, output_path, text_column):
     false_positive_df = result_df[result_df["error_type"] == "false_positive"]
     false_negative_df = result_df[result_df["error_type"] == "false_negative"]
 
-    digit_count = int(errors_df["has_digit"].sum())
-    keyword_count = int(errors_df["has_spam_keyword"].sum())
-    url_count = int(errors_df["has_url"].sum())
-    short_count = int((errors_df["word_count"] <= 5).sum())
-    medium_short_count = int((errors_df["word_count"] <= 12).sum())
-    no_keyword_count = int((~errors_df["has_spam_keyword"]).sum())
-    avg_length = errors_df["message_length"].mean()
-    avg_words = errors_df["word_count"].mean()
+    ham_ham = int(
+        ((result_df["true_label"] == "ham") & (result_df["predicted_label"] == "ham")).sum()
+    )
+    ham_spam = int(
+        ((result_df["true_label"] == "ham") & (result_df["predicted_label"] == "spam")).sum()
+    )
+    spam_ham = int(
+        ((result_df["true_label"] == "spam") & (result_df["predicted_label"] == "ham")).sum()
+    )
+    spam_spam = int(
+        ((result_df["true_label"] == "spam") & (result_df["predicted_label"] == "spam")).sum()
+    )
+
+    total_errors = len(errors_df)
+    avg_length = errors_df["message_length"].mean() if total_errors else 0.0
+    avg_words = errors_df["word_count"].mean() if total_errors else 0.0
+    digit_count = int(errors_df["has_digit"].sum()) if total_errors else 0
+    keyword_count = int(errors_df["has_spam_keyword"].sum()) if total_errors else 0
+    url_count = int(errors_df["has_url"].sum()) if total_errors else 0
+    short_count = int((errors_df["word_count"] <= 5).sum()) if total_errors else 0
+    medium_short_count = int((errors_df["word_count"] <= 12).sum()) if total_errors else 0
+    no_keyword_count = int((~errors_df["has_spam_keyword"]).sum()) if total_errors else 0
     spam_count = int((result_df["true_label"] == "spam").sum())
     missed_spam_count = len(false_negative_df)
 
-    report = []
+    report = [
+        "# Baseline Error Analysis\n",
+        "## 1. Mục tiêu\n",
+        (
+            "Phân tích các mẫu dự đoán sai của baseline TF-IDF + Multinomial Naive Bayes "
+            "trên tập test cố định của SMS Spam Collection."
+        ),
+        (
+            "\nBáo cáo này dùng cùng cấu hình preprocessing với bước evaluate baseline. "
+            "Tin nhắn gốc và cột `preprocessed_text` đều được lưu trong các file CSV đầu ra."
+        ),
+        "\n## 2. Metrics\n",
+    ]
 
-    report.append("# Baseline Error Analysis\n")
-    report.append("## 1. Mục tiêu\n")
-    report.append(
-        "Phân tích các mẫu dự đoán sai của baseline TF-IDF + Multinomial Naive Bayes "
-        "trên tập test cố định của dataset Kaggle SMS Spam Collection.\n"
-    )
-    report.append(
-        "Phạm vi báo cáo này chỉ dựa trên tập test tiếng Anh hiện tại. Vì vậy, "
-        "việc thiếu dữ liệu tiếng Việt không được xem là nguyên nhân trực tiếp "
-        "gây lỗi trong phần phân tích này."
-    )
-
-    report.append("## 2. Tổng quan metrics\n")
     test_metrics = metrics.get("test", {})
-    for metric_name, metric_value in test_metrics.items():
-        report.append(f"- {metric_name}: {metric_value:.4f}")
-    report.append(
-        "\nNhận xét nhanh: accuracy cao nhưng spam recall thấp hơn rõ so với "
-        "spam precision. Điều này cho thấy model dự đoán spam rất thận trọng: "
-        "khi đã dự đoán là spam thì đúng, nhưng vẫn bỏ sót một phần spam thật."
+    if test_metrics:
+        for metric_name, metric_value in test_metrics.items():
+            report.append(f"- {metric_name}: {metric_value:.4f}")
+    else:
+        report.append("- Không tìm thấy test metrics trong file metrics.")
+
+    report.extend(
+        [
+            "\n## 3. Confusion Matrix\n",
+            "| Nhãn thật | Dự đoán ham | Dự đoán spam |",
+            "|---|---:|---:|",
+            f"| ham | {ham_ham} | {ham_spam} |",
+            f"| spam | {spam_ham} | {spam_spam} |",
+            "\n## 4. Tổng quan lỗi\n",
+            f"- Tổng số mẫu test: {len(result_df)}",
+            f"- Tổng số mẫu sai: {total_errors}",
+            f"- Error rate: {total_errors / len(result_df):.2%}",
+            f"- False Positive: {len(false_positive_df)}",
+            f"- False Negative: {len(false_negative_df)}",
+        ]
     )
 
-    report.append("\n## 3. Confusion matrix\n")
-    report.append("| Actual label | Predicted ham | Predicted spam |")
-    report.append("|---|---:|---:|")
-    report.append("| ham | 724 | 0 |")
-    report.append("| spam | 30 | 82 |")
-    report.append(
-        "\nVấn đề chính của baseline là False Negative, tức là spam bị dự đoán "
-        "nhầm thành ham."
+    if false_positive_df.empty and not false_negative_df.empty:
+        report.append("\nTất cả lỗi đều là False Negative: spam bị dự đoán nhầm thành ham.")
+    elif false_negative_df.empty and not false_positive_df.empty:
+        report.append("\nTất cả lỗi đều là False Positive: ham bị dự đoán nhầm thành spam.")
+    elif errors_df.empty:
+        report.append("\nKhông có lỗi dự đoán trong tập test.")
+    else:
+        report.append("\nLỗi trong tập test gồm cả False Positive và False Negative.")
+
+    report.extend(
+        [
+            "\n## 5. Đặc điểm của lỗi\n",
+            f"- Tỷ lệ False Negative trong lỗi: {len(false_negative_df)}/{total_errors}",
+            f"- Độ dài trung bình: {avg_length:.2f} ký tự",
+            f"- Số từ trung bình: {avg_words:.2f} từ",
+            f"- Mẫu có chữ số: {digit_count}/{total_errors}",
+            f"- Mẫu có keyword spam: {keyword_count}/{total_errors}",
+            f"- Mẫu không có keyword spam: {no_keyword_count}/{total_errors}",
+            f"- Mẫu có URL: {url_count}/{total_errors}",
+            f"- Mẫu có <= 5 từ: {short_count}/{total_errors}",
+            f"- Mẫu có <= 12 từ: {medium_short_count}/{total_errors}",
+            "\n## 6. Ví dụ False Positive\n",
+        ]
     )
 
-    report.append("\n## 4. Tổng quan lỗi\n")
-    report.append(f"- Tổng số mẫu test: {len(result_df)}")
-    report.append(f"- Tổng số mẫu sai: {len(errors_df)}")
-    report.append(f"- Error rate: {len(errors_df) / len(result_df):.2%}")
-    report.append(f"- False Positive: {len(false_positive_df)}")
-    report.append(f"- False Negative: {len(false_negative_df)}")
-    report.append(
-        "\nTất cả lỗi trong tập test đều là spam bị phân loại nhầm thành ham. "
-        "Không có trường hợp ham bị báo nhầm là spam."
-    )
-
-    report.append("\n## 5. Thống kê đặc điểm của lỗi\n")
-    report.append(f"- {len(errors_df)}/{len(errors_df)} lỗi là False Negative.")
-    report.append(f"- Độ dài trung bình: {avg_length:.2f} ký tự.")
-    report.append(f"- Số từ trung bình: {avg_words:.2f} từ.")
-    report.append(
-        f"- {digit_count}/{len(errors_df)} mẫu có chữ số, thường là số điện thoại, "
-        "mã dịch vụ, giá tiền hoặc đầu số SMS."
-    )
-    report.append(
-        f"- {keyword_count}/{len(errors_df)} mẫu có keyword spam trong bộ keyword "
-        "đơn giản như `free`, `win`, `cash`, `prize`, `call`, `txt`, `stop`, `reply`."
-    )
-    report.append(
-        f"- {no_keyword_count}/{len(errors_df)} mẫu không có keyword spam rõ ràng "
-        "theo bộ keyword trên."
-    )
-    report.append(f"- {url_count}/{len(errors_df)} mẫu có URL.")
-    report.append(f"- {short_count}/{len(errors_df)} mẫu có từ 5 từ trở xuống.")
-    report.append(f"- {medium_short_count}/{len(errors_df)} mẫu có từ 12 từ trở xuống.")
-
-    report.append("\n## 6. Ví dụ False Positive\n")
     if false_positive_df.empty:
         report.append("Không có False Positive trong tập test.")
     for _, row in false_positive_df.head(5).iterrows():
         report.append(f"- True: {row['true_label']} | Pred: {row['predicted_label']}")
-        report.append(f"  Message: {row[text_column]}")
+        report.append(f"  Tin nhắn gốc: {row[text_column]}")
+        report.append(f"  Sau preprocess: {row.get('preprocessed_text', '')}")
 
     report.append("\n## 7. Ví dụ False Negative\n")
+    if false_negative_df.empty:
+        report.append("Không có False Negative trong tập test.")
     for _, row in false_negative_df.head(5).iterrows():
         report.append(f"- True: {row['true_label']} | Pred: {row['predicted_label']}")
-        report.append(f"  Message: {row[text_column]}")
+        report.append(f"  Tin nhắn gốc: {row[text_column]}")
+        report.append(f"  Sau preprocess: {row.get('preprocessed_text', '')}")
 
-    report.append("\n## 8. Nhóm lỗi chính\n")
-    report.append("- Spam có dấu hiệu thương mại nhưng bị xem là ham: ringtone, mobile service, credit, download.")
-    report.append("- Spam giả dạng tin nhắn cá nhân hoặc hội thoại: `call`, `chat`, `talk`, `I`, `you`.")
-    report.append("- Spam adult/dating service có số điện thoại, giá cước, `txt`, `stop` nhưng vẫn bị bỏ sót.")
-    report.append("- Spam dạng thông báo/dịch vụ giống nội dung hợp lệ từ công ty hoặc customer service.")
-    report.append("- Mẫu nhiễu, quá ngắn hoặc format bất thường làm model thiếu ngữ cảnh.")
-
-    report.append("\n## 9. Kết luận\n")
-    report.append(
-        "Baseline TF-IDF + Multinomial Naive Bayes đạt accuracy cao, nhưng lỗi "
-        "tập trung hoàn toàn vào False Negative. Model không gây phiền cho người "
-        "dùng bằng cách báo nhầm ham thành spam, nhưng lại bỏ sót "
-        f"{missed_spam_count}/{spam_count} mẫu spam trong tập test."
+    report.extend(
+        [
+            "\n## 8. Nhận xét\n",
+            f"- Model bỏ sót {missed_spam_count}/{spam_count} mẫu spam trong tập test.",
+            (
+                "- Nên so sánh tin nhắn gốc với `preprocessed_text` trong `prediction_errors.csv` "
+                "để kiểm tra preprocessing có làm mất tín hiệu spam hữu ích hay không."
+            ),
+            (
+                "- Các tín hiệu cần xem kỹ gồm dấu câu, ký hiệu tiền tệ, số điện thoại, URL, "
+                "mã dịch vụ và các keyword như `free`, `claim`, `call`, `txt`, `stop`, `reply`."
+            ),
+            "\n## 9. Hướng tiếp theo\n",
+            "- So sánh báo cáo này với error analysis của baseline dùng raw text.",
+            "- Chạy ablation cho preprocessing, đặc biệt là `remove_punct: false`.",
+            "- Thử Logistic Regression hoặc Linear SVM với cùng bộ đặc trưng TF-IDF.",
+            "- Nếu recall vẫn thấp, bổ sung feature thủ công cho URL, phone, money, digit và spam keyword.",
+        ]
     )
-    report.append(
-        "\nNguyên nhân chính quan sát được từ `prediction_errors.csv`: nhiều spam "
-        "có văn phong giống tin nhắn cá nhân hoặc thông báo hợp lệ; nhiều mẫu có "
-        "số điện thoại, mã dịch vụ hoặc giá cước nhưng baseline chưa tận dụng đủ "
-        "mạnh các tín hiệu này; một số mẫu ngắn hoặc format bất thường khiến model "
-        "thiếu ngữ cảnh."
-    )
-
-    report.append("\n## 10. Hướng cải thiện\n")
-    report.append("- Thử Logistic Regression hoặc Linear SVM với TF-IDF.")
-    report.append("- Bổ sung feature thủ công cho tín hiệu mạnh: số điện thoại, giá tiền, đầu số SMS, URL, `txt`, `stop`, `reply`, `call`.")
-    report.append("- Chuẩn hóa số điện thoại, URL, ký hiệu tiền tệ và lỗi encoding trong preprocessing.")
-    report.append("- Phân tích riêng các nhóm spam bị bỏ sót như mobile service, ringtone, dating/adult service và delivery/customer-service scam.")
-    report.append("- Nếu muốn mở rộng sang bối cảnh Việt Nam, cần tạo tập đánh giá tiếng Việt riêng; đây là bài toán generalization ngoài dataset hiện tại.")
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(report))
@@ -260,6 +280,7 @@ def main():
     data_cfg = config["data"]
     split_cfg = config["split"]
     output_cfg = config["output"]
+    preprocess_cfg = config.get("preprocess", {})
 
     validate_file_exists(data_cfg["input_path"])
     validate_file_exists(split_cfg["indices_path"])
@@ -282,7 +303,8 @@ def main():
 
     test_df = df.loc[split["test_indices"]].copy()
 
-    X_test = test_df[text_column].fillna("").astype(str)
+    X_test = preprocess_text_series(test_df[text_column], preprocess_cfg)
+    test_df["preprocessed_text"] = X_test
     y_test = test_df[label_column]
 
     X_test_vectorized = vectorizer.transform(X_test)
