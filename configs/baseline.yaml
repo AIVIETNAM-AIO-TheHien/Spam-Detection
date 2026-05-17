@@ -13,6 +13,16 @@ split:
   stratify: true
   shuffle: true
 
+preprocess:
+  enabled: true
+  lower: true
+  remove_punct: true
+  remove_numbers: false
+  normalize_entities_flag: true
+  remove_noise_flag: true
+  remove_boilerplate_flag: true
+  max_words: 1024
+
 vectorizer:
   type: "tfidf"
   max_features: 50000

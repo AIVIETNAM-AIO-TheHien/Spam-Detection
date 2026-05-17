@@ -10,6 +10,21 @@ sys.path.append(os.getcwd())
 
 from src.data.validation import validate_file_exists, validate_required_columns
 from src.evaluation.metrics import compute_classification_metrics
+from src.data.preprocess import clean_text
+
+def preprocess_text_series(texts, preprocess_cfg):
+    texts = texts.fillna("").astype(str)
+
+    if not preprocess_cfg.get("enabled", False):
+        return texts
+
+    clean_kwargs = {
+        key: value
+        for key, value in preprocess_cfg.items()
+        if key != "enabled"
+    }
+
+    return texts.apply(lambda text: clean_text(text, **clean_kwargs))
 
 
 def main():
@@ -19,6 +34,7 @@ def main():
     data_cfg = config["data"]
     split_cfg = config["split"]
     output_cfg = config["output"]
+    preprocess_cfg = config.get("preprocess", {})
 
     validate_file_exists(data_cfg["input_path"])
 
@@ -53,7 +69,7 @@ def main():
 
     test_df = df.loc[split["test_indices"]].copy()
 
-    X_test = test_df[data_cfg["text_column"]].fillna("").astype(str)
+    X_test = preprocess_text_series(test_df[data_cfg["text_column"]], preprocess_cfg)
     y_test = test_df[data_cfg["label_column"]]
 
     X_test_vectorized = vectorizer.transform(X_test)
