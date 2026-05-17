@@ -1,98 +1,226 @@
-import json
-import os
-import sys
-
+from pathlib import Path
+import argparse
 import joblib
 import pandas as pd
-import yaml
+
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-sys.path.append(os.getcwd())
 
-from src.data.validation import validate_file_exists, validate_required_columns
-from src.evaluation.metrics import compute_classification_metrics
+MODEL_DIR = Path("models")
+MODEL_PATH = MODEL_DIR / "baseline_pipeline.joblib"
+
+
+COMMON_TEXT_COLUMNS = [
+    "text",
+    "message",
+    "sms",
+    "content",
+    "email",
+    "body",
+    "v2",
+]
+
+COMMON_LABEL_COLUMNS = [
+    "label",
+    "target",
+    "class",
+    "category",
+    "spam",
+    "v1",
+]
+
+
+def read_csv_file(data_path: Path) -> pd.DataFrame:
+    """
+    Đọc file CSV với một số encoding phổ biến.
+    """
+
+    encodings = ["utf-8", "utf-8-sig", "latin1"]
+
+    for encoding in encodings:
+        try:
+            return pd.read_csv(data_path, encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+
+    raise ValueError(f"Không đọc được file CSV: {data_path}")
+
+
+def find_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
+    """
+    Tìm tên cột dựa trên danh sách tên thường gặp.
+    """
+
+    lower_to_original = {
+        col.lower().strip(): col
+        for col in df.columns
+    }
+
+    for candidate in candidates:
+        if candidate.lower() in lower_to_original:
+            return lower_to_original[candidate.lower()]
+
+    return None
+
+
+def normalize_labels(y: pd.Series) -> pd.Series:
+    """
+    Chuẩn hóa nhãn về dạng 0/1 nếu dataset dùng ham/spam.
+    0 = ham
+    1 = spam
+    """
+
+    y = y.astype(str).str.strip().str.lower()
+
+    label_mapping = {
+        "ham": 0,
+        "not spam": 0,
+        "non-spam": 0,
+        "legitimate": 0,
+        "0": 0,
+
+        "spam": 1,
+        "1": 1,
+    }
+
+    y_mapped = y.map(label_mapping)
+
+    if y_mapped.isna().any():
+        unknown_labels = sorted(y[y_mapped.isna()].unique())
+        raise ValueError(
+            "Có nhãn chưa được hỗ trợ: "
+            f"{unknown_labels}. Hãy kiểm tra lại cột label."
+        )
+
+    return y_mapped
+
+
+def build_pipeline() -> Pipeline:
+    """
+    Baseline pipeline:
+    Text -> TF-IDF -> Multinomial Naive Bayes
+    """
+
+    pipeline = Pipeline([
+        (
+            "tfidf",
+            TfidfVectorizer(
+                lowercase=True,
+                strip_accents="unicode",
+                stop_words="english",
+                max_features=5000,
+                ngram_range=(1, 2),
+            )
+        ),
+        (
+            "model",
+            MultinomialNB()
+        )
+    ])
+
+    return pipeline
+
+
+def train_baseline(data_path: Path, text_col: str | None, label_col: str | None):
+    df = read_csv_file(data_path)
+
+    print("Dataset shape:", df.shape)
+    print("Columns:", list(df.columns))
+
+    if text_col is None:
+        text_col = find_column(df, COMMON_TEXT_COLUMNS)
+
+    if label_col is None:
+        label_col = find_column(df, COMMON_LABEL_COLUMNS)
+
+    if text_col is None:
+        raise ValueError(
+            "Không tự tìm được cột text. "
+            "Hãy truyền rõ bằng --text-col."
+        )
+
+    if label_col is None:
+        raise ValueError(
+            "Không tự tìm được cột label. "
+            "Hãy truyền rõ bằng --label-col."
+        )
+
+    print("Text column:", text_col)
+    print("Label column:", label_col)
+
+    df = df[[text_col, label_col]].dropna()
+
+    X = df[text_col].astype(str)
+    y = normalize_labels(df[label_col])
+
+    print("Label distribution:")
+    print(y.value_counts())
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y
+    )
+
+    pipeline = build_pipeline()
+    pipeline.fit(X_train, y_train)
+
+    y_pred = pipeline.predict(X_test)
+
+    print("\nAccuracy:", accuracy_score(y_test, y_pred))
+
+    print("\nClassification report:")
+    print(
+        classification_report(
+            y_test,
+            y_pred,
+            target_names=["ham", "spam"]
+        )
+    )
+
+    print("\nConfusion matrix:")
+    print(confusion_matrix(y_test, y_pred))
+
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    joblib.dump(pipeline, MODEL_PATH)
+
+    print(f"\nSaved model to: {MODEL_PATH}")
 
 
 def main():
-    with open("configs/baseline.yaml", "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
+    parser = argparse.ArgumentParser()
 
-    data_cfg = config["data"]
-    split_cfg = config["split"]
-    vectorizer_cfg = config["vectorizer"]
-    model_cfg = config["model"]
-    output_cfg = config["output"]
-
-    validate_file_exists(data_cfg["input_path"])
-
-    if not os.path.exists(split_cfg["indices_path"]):
-        raise FileNotFoundError(
-            f"Missing fixed split file: {split_cfg['indices_path']}. "
-            "Run `python scripts/create_split.py` first."
-        )
-
-    df = pd.read_csv(data_cfg["input_path"])
-
-    validate_required_columns(
-        df,
-        [data_cfg["text_column"], data_cfg["label_column"]],
+    parser.add_argument(
+        "--data",
+        required=True,
+        help="Đường dẫn đến file CSV chứa dataset."
     )
 
-    with open(split_cfg["indices_path"], "r", encoding="utf-8") as f:
-        split = json.load(f)
-
-    train_df = df.loc[split["train_indices"]].copy()
-    dev_df = df.loc[split["dev_indices"]].copy()
-
-    text_column = data_cfg["text_column"]
-    label_column = data_cfg["label_column"]
-
-    X_train = train_df[text_column].fillna("").astype(str)
-    y_train = train_df[label_column]
-
-    X_dev = dev_df[text_column].fillna("").astype(str)
-    y_dev = dev_df[label_column]
-
-    vectorizer = TfidfVectorizer(
-        max_features=vectorizer_cfg["max_features"],
-        ngram_range=tuple(vectorizer_cfg["ngram_range"]),
-        min_df=vectorizer_cfg["min_df"],
-        max_df=vectorizer_cfg["max_df"],
-        lowercase=vectorizer_cfg["lowercase"],
-        strip_accents=vectorizer_cfg["strip_accents"],
+    parser.add_argument(
+        "--text-col",
+        default=None,
+        help="Tên cột chứa nội dung văn bản."
     )
 
-    X_train_vectorized = vectorizer.fit_transform(X_train)
-    X_dev_vectorized = vectorizer.transform(X_dev)
-
-    model = MultinomialNB(alpha=model_cfg["alpha"])
-    model.fit(X_train_vectorized, y_train)
-
-    dev_predictions = model.predict(X_dev_vectorized)
-
-    dev_metrics = compute_classification_metrics(
-        y_true=y_dev,
-        y_pred=dev_predictions,
-        positive_label=data_cfg["positive_label"],
+    parser.add_argument(
+        "--label-col",
+        default=None,
+        help="Tên cột chứa nhãn spam/ham."
     )
 
-    os.makedirs(output_cfg["experiment_dir"], exist_ok=True)
+    args = parser.parse_args()
 
-    joblib.dump(model, output_cfg["model_path"])
-    joblib.dump(vectorizer, output_cfg["vectorizer_path"])
-
-    metrics = {
-        "model": model_cfg["type"],
-        "feature_extractor": "tfidf",
-        "split_file": split_cfg["indices_path"],
-        "dev": dev_metrics,
-    }
-
-    with open(output_cfg["metrics_path"], "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2)
-
-    print(json.dumps(metrics, indent=2))
+    train_baseline(
+        data_path=Path(args.data),
+        text_col=args.text_col,
+        label_col=args.label_col,
+    )
 
 
 if __name__ == "__main__":
