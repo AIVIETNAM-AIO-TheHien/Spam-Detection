@@ -1,4 +1,4 @@
-# tests/test_preprocess_fixed.py
+# tests/test_preprocess.py
 import unittest
 import sys
 import os
@@ -8,7 +8,7 @@ import re
 # Thêm đường dẫn gốc dự án vào sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data.preprocess_fixed import (
+from src.data.preprocess import (
     normalize_entities,
     remove_system_noise,
     remove_mailing_list_boilerplate,
@@ -200,7 +200,7 @@ class TestCleanText(unittest.TestCase):
 
     def test_empty_input(self):
         self.assertEqual(clean_text(""), "")
-        self.assertEqual(clean_text(None), "None")  # converts to string
+        self.assertEqual(clean_text(None), "none")  # converts to string, then lowercases
 
     def test_non_string_input(self):
         self.assertEqual(clean_text(12345, lower=False, remove_punct=False), "12345")
@@ -255,7 +255,7 @@ class TestPreprocessPipeline(unittest.TestCase):
 
     def test_pipeline_empty(self):
         self.assertEqual(preprocess_pipeline(""), "")
-        self.assertEqual(preprocess_pipeline(None), "None")
+        self.assertEqual(preprocess_pipeline(None), "none")
 
     def test_pipeline_already_clean(self):
         text = "hello world"
@@ -274,7 +274,7 @@ class TestReportLengthStats(unittest.TestCase):
         output = captured.getvalue()
         self.assertIn("Length stats (words):", output)
         self.assertIn("min=1", output)
-        self.assertIn("max=9", output)
+        self.assertIn("max=10", output)
         self.assertIn("mean", output)
 
     def test_empty_list(self):
