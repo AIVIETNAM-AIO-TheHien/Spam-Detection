@@ -12,7 +12,21 @@ sys.path.append(os.getcwd())
 
 from src.data.validation import validate_file_exists, validate_required_columns
 from src.evaluation.metrics import compute_classification_metrics
+from src.data.preprocess import clean_text
 
+def preprocess_text_series(texts, preprocess_cfg):
+    texts = texts.fillna("").astype(str)
+
+    if not preprocess_cfg.get("enabled", False):
+        return texts
+
+    clean_kwargs = {
+        key: value
+        for key, value in preprocess_cfg.items()
+        if key != "enabled"
+    }
+
+    return texts.apply(lambda text: clean_text(text, **clean_kwargs))
 
 def main():
     with open("configs/baseline.yaml", "r", encoding="utf-8") as f:
@@ -23,6 +37,7 @@ def main():
     vectorizer_cfg = config["vectorizer"]
     model_cfg = config["model"]
     output_cfg = config["output"]
+    preprocess_cfg = config.get("preprocess", {})
 
     validate_file_exists(data_cfg["input_path"])
 
@@ -48,10 +63,10 @@ def main():
     text_column = data_cfg["text_column"]
     label_column = data_cfg["label_column"]
 
-    X_train = train_df[text_column].fillna("").astype(str)
+    X_train = preprocess_text_series(train_df[text_column], preprocess_cfg)
     y_train = train_df[label_column]
 
-    X_dev = dev_df[text_column].fillna("").astype(str)
+    X_dev = preprocess_text_series(dev_df[text_column], preprocess_cfg)
     y_dev = dev_df[label_column]
 
     vectorizer = TfidfVectorizer(
@@ -85,6 +100,7 @@ def main():
     metrics = {
         "model": model_cfg["type"],
         "feature_extractor": "tfidf",
+        "preprocess": preprocess_cfg,
         "split_file": split_cfg["indices_path"],
         "dev": dev_metrics,
     }

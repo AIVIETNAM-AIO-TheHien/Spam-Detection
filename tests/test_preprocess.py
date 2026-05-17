@@ -1,169 +1,289 @@
-"""
-Unit test cho module src.data.preprocess
-Kiểm tra các hàm clean_text, tokenize, preprocess_pipeline
-Chạy được từ cả thư mục gốc hoặc thư mục tests
-"""
-
+# tests/test_preprocess.py
 import unittest
 import sys
 import os
+import io
+import re
 
-# --- Tự động thêm đường dẫn thư mục gốc vào sys.path ---
-# Lấy đường dẫn tuyệt đối của thư mục chứa file test này
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# Đi lên 1 cấp để tới thư mục gốc dự án (Spam-Detection)
-project_root = os.path.dirname(current_dir)
-# Thêm thư mục gốc vào sys.path để import được src
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Thêm đường dẫn gốc dự án vào sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import module cần test
-from src.data.preprocess import clean_text, tokenize, preprocess_pipeline
+from src.data.preprocess import (
+    normalize_entities,
+    remove_system_noise,
+    remove_mailing_list_boilerplate,
+    truncate_text,
+    clean_text,
+    preprocess_email,
+    preprocess_pipeline,
+    report_length_stats
+)
 
-class TestCleanText(unittest.TestCase):
-    """Kiểm tra hàm clean_text với các tùy chọn khác nhau"""
 
-    def test_lowercase(self):
-        """Chuyển chữ hoa thành chữ thường"""
-        self.assertEqual(clean_text("Hello WORLD", lowercase=True), "hello world")
+class TestNormalizeEntities(unittest.TestCase):
+    """Unit tests for entity normalization (URL, email, phone, money)"""
 
-    def test_no_lowercase(self):
-        """Giữ nguyên chữ hoa khi lowercase=False"""
-        self.assertEqual(clean_text("Hello WORLD", lowercase=False), "Hello WORLD")
-
-    def test_remove_urls(self):
-        """Xóa URL (http, https, www)"""
-        text = "Check https://example.com and http://test.com or www.google.com"
-        result = clean_text(text, remove_urls=True)
-        self.assertNotIn("https://", result)
+    def test_url(self):
+        text = "Visit http://example.com and https://secure.com or www.google.com"
+        result = normalize_entities(text)
+        self.assertEqual(result.count("[URL]"), 3)
         self.assertNotIn("http://", result)
         self.assertNotIn("www.", result)
-        self.assertIn("Check and or", result)
 
-    def test_remove_emails(self):
-        """Xóa địa chỉ email"""
-        text = "Contact me@example.com or support@test.org for help"
-        result = clean_text(text, remove_emails=True)
+    def test_email(self):
+        text = "Contact me@example.com and support@test.org"
+        result = normalize_entities(text)
+        self.assertEqual(result.count("[EMAIL]"), 2)
         self.assertNotIn("@", result)
-        self.assertIn("Contact or for help", result)
 
-    def test_remove_punctuation(self):
-        """Xóa dấu câu"""
-        text = "Hello!!! How are you? I'm fine, thanks."
-        result = clean_text(text, remove_punct=True)
-        self.assertEqual(result, "Hello How are you Im fine thanks")
+    def test_phone_vietnam_formats(self):
+        text = "Call 0909123456 or 0987.654.321 or +84 987 654 321"
+        result = normalize_entities(text)
+        self.assertEqual(result.count("[PHONE]"), 3)
 
-    def test_remove_html(self):
-        """Xóa thẻ HTML"""
-        text = "<html><body>Hello <b>World</b></body></html>"
-        result = clean_text(text, remove_html=True)
-        self.assertEqual(result, "Hello World")
+    def test_phone_simple(self):
+        text = "Phone 12345678 or 12345678901"
+        result = normalize_entities(text)
+        self.assertEqual(result.count("[PHONE]"), 2)
+
+    def test_money(self):
+        text = "You won $1000 or 2 million dollars or €50 or £20.5"
+        result = normalize_entities(text)
+        self.assertEqual(result.count("[MONEY]"), 4)
+
+    def test_no_entities(self):
+        text = "This is a normal sentence without any entities."
+        result = normalize_entities(text)
+        self.assertEqual(result, text)
+
+    def test_overlapping_patterns(self):
+        # URL inside email? unlikely but test robustness
+        text = "Check https://user@example.com for details"
+        result = normalize_entities(text)
+        self.assertIn("[URL]", result)
+        self.assertIn("[EMAIL]", result)
+
+
+class TestRemoveSystemNoise(unittest.TestCase):
+    """Unit tests for cleaning system noise (exmh, PGP, headers, base64)"""
+
+    def test_exmh_id(self):
+        text = "some text _exmh_12345678P more text"
+        result = remove_system_noise(text)
+        self.assertNotIn("_exmh_", result)
+        self.assertIn("some text more text", re.sub(r'\s+', ' ', result))
+
+    def test_pgp_signature(self):
+        text = """Hello
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+iQEzBAABCAAdFiEE...
+-----END PGP SIGNATURE-----
+End"""
+        result = remove_system_noise(text)
+        self.assertNotIn("PGP", result)
+        self.assertIn("Hello", result)
+        self.assertIn("End", result)
+
+    def test_headers(self):
+        text = "Date: 2025-01-01\nFrom: sender@example.com\nSubject: Hello\nThis is body"
+        result = remove_system_noise(text)
+        self.assertNotIn("Date:", result)
+        self.assertNotIn("From:", result)
+        self.assertNotIn("Subject:", result)
+        self.assertIn("This is body", result)
+
+    def test_base64_string(self):
+        long_b64 = "aHR0cHM6Ly9leGFtcGxlLmNvbSBsb25nYmFzZTY0c3RyaW5ndGhhdGlzdmVyeWxvbmc="
+        text = f"prefix {long_b64} suffix"
+        result = remove_system_noise(text)
+        self.assertNotIn(long_b64, result)
+
+    def test_no_noise(self):
+        text = "Clean text without any system noise."
+        result = remove_system_noise(text)
+        self.assertEqual(result, text)
+
+
+class TestRemoveMailingListBoilerplate(unittest.TestCase):
+    """Unit tests for removing mailing list footers"""
+
+    def test_irish_linux_group(self):
+        text = "Some content\nIrish Linux Users Group: ilug@linux.ie\nhttp://www.linux.ie/mailman/listinfo/ilug for unsubscription information. List maintainer: listmaster@linux.ie"
+        result = remove_mailing_list_boilerplate(text)
+        self.assertNotIn("unsubscription", result.lower())
+        self.assertIn("some content", result.lower())
+
+    def test_yahoo_sponsor(self):
+        text = "Content\n------------------------ Yahoo! Groups Sponsor ---------------------~--> 4 DVDs Free +s&p Join Now"
+        result = remove_mailing_list_boilerplate(text)
+        self.assertNotIn("yahoo", result.lower())
+        self.assertIn("content", result.lower())
+
+    def test_separator_lines(self):
+        text = "Main text\n_______________________________________________\nFooter text"
+        result = remove_mailing_list_boilerplate(text)
+        self.assertNotIn("_______________________________________________", result)
+        self.assertIn("main text", result.lower())
+
+    def test_no_boilerplate(self):
+        text = "Just a normal email without any footer."
+        result = remove_mailing_list_boilerplate(text)
+        self.assertEqual(result, text)
+
+
+class TestTruncateText(unittest.TestCase):
+    """Unit tests for text truncation by word count"""
+
+    def test_no_truncate(self):
+        text = "one two three four five"
+        result = truncate_text(text, max_words=10)
+        self.assertEqual(result, text)
+
+    def test_truncate_exact(self):
+        text = "one two three four five"
+        result = truncate_text(text, max_words=5)
+        self.assertEqual(result, text)
+
+    def test_truncate_less(self):
+        text = "one two three four five six seven"
+        result = truncate_text(text, max_words=4)
+        self.assertEqual(result, "one two three four")
+        self.assertEqual(len(result.split()), 4)
+
+    def test_truncate_empty(self):
+        self.assertEqual(truncate_text("", 5), "")
+
+    def test_truncate_with_extra_spaces(self):
+        text = "one  two   three    four"
+        result = truncate_text(text, max_words=3)
+        self.assertEqual(result, "one two three")
+
+
+class TestCleanText(unittest.TestCase):
+    """Comprehensive tests for the main clean_text pipeline"""
+
+    def test_basic_cleaning(self):
+        text = "Hello WORLD!!!"
+        result = clean_text(text, lower=True, remove_punct=True)
+        self.assertEqual(result, "hello world")
+
+    def test_with_entities_and_noise(self):
+        text = "Check https://spam.com or email me@abc.com Call 0909123456. _exmh_123"
+        result = clean_text(text)
+        self.assertIn("[url]", result)   # because lower is applied after normalization
+        self.assertIn("[email]", result)
+        self.assertIn("[phone]", result)
+        self.assertNotIn("_exmh_", result)
+
+    def test_boilerplate_removal(self):
+        text = "Important message\nIrish Linux Users Group unsubscription info"
+        result = clean_text(text, remove_boilerplate_flag=True)
+        self.assertNotIn("unsubscription", result)
+
+    def test_length_control(self):
+        long_text = "word " * 2000
+        result = clean_text(long_text, max_words=1024)
+        self.assertEqual(len(result.split()), 1024)
 
     def test_remove_numbers(self):
-        """Xóa số (khi bật)"""
-        text = "Call 0901234567 or 123 for support"
-        result = clean_text(text, remove_numbers=True)
-        self.assertNotIn("0901234567", result)
-        self.assertNotIn("123", result)
-        self.assertIn("Call or for support", result)
+        text = "Call 12345 and [phone] token"
+        result = clean_text(text, remove_numbers=True, normalize_entities_flag=False)
+        self.assertNotIn("12345", result)
+        self.assertIn("and", result)
 
-    def test_keep_numbers_by_default(self):
-        """Mặc định giữ lại số (quan trọng cho spam)"""
-        text = "Call 0901234567 now"
-        result = clean_text(text, remove_numbers=False)
-        self.assertIn("0901234567", result)
+    def test_keep_brackets(self):
+        # Ensure that after punctuation removal, [URL] remains
+        text = "Visit https://example.com"
+        result = clean_text(text, remove_punct=True, normalize_entities_flag=True)
+        self.assertIn("[url]", result)   # brackets preserved
 
-    def test_combination_of_options(self):
-        """Kết hợp nhiều tùy chọn cùng lúc"""
-        text = "Check https://spam.com and email me@abc.com!!! WINNER 100K"
-        result = clean_text(
-            text,
-            lowercase=True,
-            remove_urls=True,
-            remove_emails=True,
-            remove_punct=True,
-            remove_html=True,
-            remove_numbers=False,
-        )
-        self.assertEqual(result, "check and winner 100k")
+    def test_empty_input(self):
+        self.assertEqual(clean_text(""), "")
+        self.assertEqual(clean_text(None), "none")  # converts to string, then lowercases
+
+    def test_non_string_input(self):
+        self.assertEqual(clean_text(12345, lower=False, remove_punct=False), "12345")
 
 
-class TestTokenize(unittest.TestCase):
-    """Kiểm tra hàm tokenize"""
+class TestPreprocessEmail(unittest.TestCase):
+    """Unit tests for email preprocessing (subject + body)"""
 
-    def test_tokenize_simple(self):
-        """Tokenize câu đơn giản"""
-        self.assertEqual(tokenize("machine learning is fun"), ["machine", "learning", "is", "fun"])
+    def test_subject_body(self):
+        subject = "Win $500"
+        body = "Call 0909123456 now!"
+        result = preprocess_email(subject=subject, body=body)
+        self.assertIn("win", result)
+        self.assertIn("call", result)
+        self.assertIn("[money]", result)
+        self.assertIn("[phone]", result)
 
-    def test_tokenize_with_extra_spaces(self):
-        """Tokenize với nhiều khoảng trắng"""
-        self.assertEqual(tokenize("a    b   c"), ["a", "b", "c"])
+    def test_subject_only(self):
+        result = preprocess_email(subject="Hello World")
+        self.assertEqual(result, "hello world")
 
-    def test_tokenize_empty_string(self):
-        """Tokenize chuỗi rỗng"""
-        self.assertEqual(tokenize(""), [])
+    def test_body_only(self):
+        result = preprocess_email(body="Just a body")
+        self.assertEqual(result, "just a body")
+
+    def test_text_only_overrides(self):
+        result = preprocess_email(subject="ignored", body="ignored", text="direct text")
+        self.assertEqual(result, "direct text")
+
+    def test_empty_inputs(self):
+        result = preprocess_email()
+        self.assertEqual(result, "")
+        result = preprocess_email(subject=None, body=None)
+        self.assertEqual(result, "")
+
+    def test_custom_kwargs(self):
+        # pass custom parameters to clean_text
+        result = preprocess_email(subject="Hello!!!", body="World!!!", lower=False, remove_punct=False)
+        self.assertEqual(result, "Hello!!! World!!!")
 
 
 class TestPreprocessPipeline(unittest.TestCase):
-    """Kiểm tra pipeline tiền xử lý hoàn chỉnh"""
+    """Unit tests for the simple pipeline (SMS / comments)"""
 
-    def test_pipeline_basic(self):
-        """Pipeline với email spam điển hình"""
-        raw = "FREE MONEY!!! Call 0901234567 or visit https://fake.com"
+    def test_pipeline_sms(self):
+        raw = "WINNER!!! You've won $1000. Call 0901234567 now!"
         result = preprocess_pipeline(raw)
-        # Kết quả mong đợi: lowercase, xóa dấu câu, xóa URL, giữ số
-        expected = ["free", "money", "call", "0901234567", "or", "visit"]
-        self.assertEqual(result, expected)
+        self.assertIn("winner", result)
+        self.assertIn("[money]", result)
+        self.assertIn("[phone]", result)
+        self.assertNotIn("!!!", result)
 
-    def test_pipeline_with_html(self):
-        """Pipeline với nội dung HTML"""
-        raw = "<b>URGENT</b> Your account <i>will be closed</i>"
-        result = preprocess_pipeline(raw)
-        self.assertNotIn("<b>", " ".join(result))
-        self.assertIn("urgent", result)
-        self.assertIn("your", result)
-        self.assertIn("account", result)
+    def test_pipeline_empty(self):
+        self.assertEqual(preprocess_pipeline(""), "")
+        self.assertEqual(preprocess_pipeline(None), "none")
 
-    def test_pipeline_with_email(self):
-        """Pipeline xóa email"""
-        raw = "Contact me@example.com for details"
-        result = preprocess_pipeline(raw)
-        self.assertNotIn("me@example.com", " ".join(result))
-        self.assertIn("contact", result)
-        self.assertIn("for", result)
-        self.assertIn("details", result)
+    def test_pipeline_already_clean(self):
+        text = "hello world"
+        self.assertEqual(preprocess_pipeline(text), text)
 
-    def test_pipeline_keep_numbers(self):
-        """Pipeline vẫn giữ số (phục vụ nhận diện spam)"""
-        raw = "You won $1000000. Call 123456789"
-        result = preprocess_pipeline(raw)
-        self.assertIn("1000000", result)
-        self.assertIn("123456789", result)
 
-    def test_pipeline_empty_result(self):
-        """Pipeline với text chỉ toàn URL sẽ bị xóa hết -> tokenize thành []"""
-        raw = "https://example.com"
-        result = preprocess_pipeline(raw)
-        self.assertEqual(result, [])
+class TestReportLengthStats(unittest.TestCase):
+    """Unit test for report_length_stats (capture stdout)"""
 
-    def test_pipeline_non_string_input(self):
-        """Pipeline với đầu vào không phải string (int, float) -> vẫn xử lý"""
-        raw = 12345
-        result = preprocess_pipeline(raw)
-        self.assertEqual(result, ["12345"])
+    def test_report(self):
+        texts = ["short", "a bit longer sentence", "this is a fairly long text that contains several words"]
+        captured = io.StringIO()
+        sys.stdout = captured
+        report_length_stats(texts)
+        sys.stdout = sys.__stdout__
+        output = captured.getvalue()
+        self.assertIn("Length stats (words):", output)
+        self.assertIn("min=1", output)
+        self.assertIn("max=10", output)
+        self.assertIn("mean", output)
 
-    def test_pipeline_vietnamese(self):
-        """Pipeline với tiếng Việt có dấu (không cần bỏ dấu, chỉ chuẩn hóa cơ bản)"""
-        raw = "Chúc mừng bạn đã trúng thưởng 100 triệu! Liên hệ ngay 0909123456"
-        result = preprocess_pipeline(raw)
-        # Dấu câu bị xóa, chữ thường, số giữ lại
-        self.assertIn("chúc", result)
-        self.assertIn("mừng", result)
-        self.assertIn("bạn", result)
-        self.assertIn("100", result)
-        self.assertIn("0909123456", result)
+    def test_empty_list(self):
+        captured = io.StringIO()
+        sys.stdout = captured
+        report_length_stats([])
+        sys.stdout = sys.__stdout__
+        self.assertIn("Empty list", captured.getvalue())
 
 
 if __name__ == "__main__":
-    # Chạy tất cả test với độ chi tiết cao
     unittest.main(verbosity=2)
