@@ -12,7 +12,7 @@ from sklearn.pipeline import Pipeline
 
 sys.path.append(os.getcwd())
 
-from src.data.preprocess import clean_text
+from src.data.preprocess_fixed import clean_text
 from src.data.validation import validate_file_exists, validate_required_columns
 from src.evaluation.metrics import compute_classification_metrics
 

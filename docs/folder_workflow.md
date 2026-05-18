@@ -102,13 +102,13 @@
 
 ### Thêm bước tiền xử lý mới
 
-1. **Viết hàm vào `src/data/preprocess.py`** — không tạo file mới
+1. **Viết hàm vào `src/data/preprocess_fixed.py`** — không tạo file mới
 2. **Thêm flag vào `configs/baseline.yaml`** (section `preprocess:`)
-3. **Tất cả script và notebook** import từ `src.data.preprocess` — không duplicate logic
+3. **Tất cả script và notebook** import từ `src.data.preprocess_fixed` — không duplicate logic
 
 ```python
 # Đúng
-from src.data.preprocess import preprocess_pipeline, clean_text
+from src.data.preprocess_fixed import preprocess_pipeline, clean_text
 
 # Sai — hard-code logic tiền xử lý inline
 text = text.lower().strip().replace(...)
@@ -154,5 +154,5 @@ Không chạy `evaluate_baseline.py` trước `train_baseline.py` — file `mode
 - [ ] Không có script thực thi mới nằm ở root (phải ở `scripts/`)
 - [ ] Không có tài liệu `.md` mới nằm ở root (phải ở `docs/`)
 - [ ] Config mới nằm trong `configs/`, không phải `experiments/`
-- [ ] Logic tiền xử lý không bị duplicate — chỉ có 1 nguồn: `src/data/preprocess.py`
+- [ ] Logic tiền xử lý không bị duplicate — chỉ có 1 nguồn: `src/data/preprocess_fixed.py`
 - [ ] `experiments/` không commit file model lớn (kiểm tra `.gitignore`)

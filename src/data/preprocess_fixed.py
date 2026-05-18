@@ -16,19 +16,17 @@ def normalize_entities(text: str) -> str:
     - Email -> [EMAIL]
     - Số tiền (có dấu $, €, £, hoặc kèm 'triệu', 'nghìn') -> [MONEY]
     """
-    # Email
-    text = re.sub(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}', ' [EMAIL] ', text)
     # URL
-    text = re.sub(r'https?://\S*|www\.\S+', ' [URL] ', text, flags=re.IGNORECASE)
+    text = re.sub(r'http\S+|www\.\S+|https\S+', ' [URL] ', text, flags=re.IGNORECASE)
+    # Email
+    text = re.sub(r'\S+@\S+', ' [EMAIL] ', text)
     # Số điện thoại (dạng 10-11 chữ số, có thể có +84, 0, dấu cách, dấu gạch)
     phone_pattern = r'(\+?84|0)[\s.-]?([0-9]{2,3})[\s.-]?([0-9]{3})[\s.-]?([0-9]{3,4})'
     text = re.sub(phone_pattern, ' [PHONE] ', text)
     # Số điện thoại đơn giản 8-11 chữ số liền
     text = re.sub(r'\b\d{8,11}\b', ' [PHONE] ', text)
     # Số tiền: $, €, £, hoặc số + "triệu/nghìn"
-    currency_symbol = r'(?:\$|€|£|â‚¬|Â£)'
-    money_unit = r'(?:triệu|nghìn|triá»‡u|nghÃ¬n|million|thousand|dollars?|usd|vnd)'
-    money_pattern = rf'(?:{currency_symbol}\s*\d+(?:[\.,]\d+)?|\b\d+(?:[\.,]\d+)?\s*{money_unit}\b)'
+    money_pattern = r'(\$|€|£)?\s*\d+(?:[\.,]\d+)?\s*(triệu|nghìn|million|thousand)?'
     text = re.sub(money_pattern, ' [MONEY] ', text, flags=re.IGNORECASE)
     return text
 
@@ -61,7 +59,6 @@ def remove_mailing_list_boilerplate(text: str) -> str:
     """
     patterns = [
         r'irish linux users group.*?list maintainer.*?(?:\n|$)',
-        r'irish linux users group.*?(?:\n|$)',
         r'to unsubscribe from this group.*?(?:\n|$)',
         r'yahoo! groups sponsor.*?(?:\n|$)',
         r'please read the faq.*?(?:\n|$)',
@@ -120,8 +117,7 @@ def clean_text(
 
     # 5. Xóa dấu câu (nếu yêu cầu)
     if remove_punct:
-        punctuation_to_remove = string.punctuation.replace('[', '').replace(']', '')
-        text = text.translate(str.maketrans('', '', punctuation_to_remove))
+        text = text.translate(str.maketrans('', '', string.punctuation))
 
     # 6. Xóa số (nếu yêu cầu) - nhưng thường đã thay bằng token
     if remove_numbers:

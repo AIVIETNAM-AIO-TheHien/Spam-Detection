@@ -7,12 +7,12 @@
 ---
 
 ## 1. Yêu cầu về Định dạng Đầu ra (Format)
-Để đảm bảo tính nhất quán với bộ dữ liệu Baseline (Kaggle SMS), yêu cầu mọi dữ liệu sau khi qua file `preprocess.py` (dù là email thô hay dữ liệu cào từ web) phải được trả về dưới dạng một dòng duy nhất theo cấu trúc:
+Để đảm bảo tính nhất quán với bộ dữ liệu Baseline (Kaggle SMS), yêu cầu mọi dữ liệu sau khi qua file `preprocess_fixed.py` (dù là email thô hay dữ liệu cào từ web) phải được trả về dưới dạng một dòng duy nhất theo cấu trúc:
 `"nội dung văn bản đã làm sạch",label`
 
 ---
 
-## 2. Các hành động yêu cầu trong script `preprocess.py`
+## 2. Các hành động yêu cầu trong script `preprocess_fixed.py`
 
 Để đạt được "một dòng text duy nhất" mà không làm mất thông tin quan trọng của Email, AI Data cần thực hiện các thao tác sau:
 
@@ -71,7 +71,7 @@
 ---
 
 ## 4. Kiểm soát chất lượng (QA)
-* **Tính mô-đun:** File `preprocess.py` phải chứa một hàm chính (ví dụ: `clean_text(raw_input)`) trả về đúng một chuỗi string duy nhất đã được xử lý.
+* **Tính mô-đun:** File `preprocess_fixed.py` phải chứa một hàm chính (ví dụ: `clean_text(raw_input)`) trả về đúng một chuỗi string duy nhất đã được xử lý.
 * **Thử nghiệm chéo:** Chạy thử hàm này trên cả dòng dữ liệu SMS (Kaggle) và Email (Crawl). Nếu cả hai đều cho ra cùng một kiểu định dạng text sạch, khi đó script mới đạt yêu cầu.
 
 Sau khi xong thì AI Model sẽ test trên dữ liệu mới

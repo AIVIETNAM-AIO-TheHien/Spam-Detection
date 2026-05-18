@@ -30,12 +30,12 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 - [ ] 🟡 Thu thập thêm mẫu spam "đời thực" tiếng Việt (bất động sản, lừa đảo trúng thưởng, khóa học, đa cấp...) và ghi chú nguồn gốc.
 - [ ] 🟡 Tài liệu mô tả rõ **khó khăn/điểm yếu** của dataset hiện tại (thiếu domain nào, class nào ít mẫu...).
 
-#### b) File `preprocess.py`
+#### b) File `preprocess_fixed.py`
 
-- [ ] 🔴 File `preprocess.py` tồn tại, chạy được, có docstring giải thích từng hàm.
+- [ ] 🔴 File `preprocess_fixed.py` tồn tại, chạy được, có docstring giải thích từng hàm.
 - [ ] 🔴 Bao gồm tối thiểu các bước: lowercase, loại bỏ ký tự đặc biệt, tokenize.
 - [ ] 🟡 Có thể import và tái sử dụng từ bất kỳ script/notebook nào khác (`from src.preprocess import ...`).
-- [ ] 🟢 Có unit test cơ bản cho `preprocess.py` và tất cả test PASS.
+- [ ] 🟢 Có unit test cơ bản cho `preprocess_fixed.py` và tất cả test PASS.
 
 #### c) Kịch bản Làm giàu Dữ liệu (Augmentation Plan)
 
@@ -51,7 +51,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 #### a) Refactor Baseline (Naive Bayes)
 
 - [x] 🔴 Code Naive Bayes + TF-IDF chạy thành công trên dataset Kaggle.
-- [ ] 🔴 Code sử dụng `preprocess.py` của team Data (import trực tiếp, **không hard-code** bước tiền xử lý).
+- [ ] 🔴 Code sử dụng `preprocess_fixed.py` của team Data (import trực tiếp, **không hard-code** bước tiền xử lý).
 - [x] 🔴 Script đánh giá in ra đầy đủ các chỉ số: **Accuracy, F1-score, Precision, Recall**.
 - [ ] 🟡 Code được tổ chức thành hàm/class rõ ràng, có docstring, tuân thủ PEP8.
 
@@ -83,8 +83,8 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### b) Tích hợp Pipeline
 
-- [ ] 🟡 Luồng xử lý: Input text → `preprocess.py` → TF-IDF transform → Model predict → Output.
-- [ ] 🟡 Sử dụng đúng `preprocess.py` của team Data (không duplicate logic tiền xử lý).
+- [ ] 🟡 Luồng xử lý: Input text → `preprocess_fixed.py` → TF-IDF transform → Model predict → Output.
+- [ ] 🟡 Sử dụng đúng `preprocess_fixed.py` của team Data (không duplicate logic tiền xử lý).
 - [ ] 🟢 Có xử lý edge case: input rỗng, input quá dài, ký tự đặc biệt.
 
 ---
@@ -119,7 +119,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 | # | Hạng mục | Trạng thái |
 | :---: | :--- | :---: |
 | 1 | Dataset gốc đã chuẩn hóa và lưu đúng vị trí | ☑ |
-| 2 | `preprocess.py` hoạt động, có thể import xuyên suốt | ☐ |
+| 2 | `preprocess_fixed.py` hoạt động, có thể import xuyên suốt | ☐ |
 | 3 | Baseline Naive Bayes chạy thành công, có metrics rõ ràng | ☑ |
 | 4 | Error Analysis: danh sách mẫu sai đã được trích xuất | ☐ |
 | 5 | Streamlit app chạy được, nhập text → trả kết quả | ☐ |
@@ -164,7 +164,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 - [ ] 🔴 Huấn luyện lại **Naive Bayes** trên Custom Dataset v2 — ghi nhận metrics.
 - [ ] 🔴 Huấn luyện thêm ≥ 1 mô hình bổ sung (**SVM** hoặc **Logistic Regression**) trên v2.
-- [ ] 🔴 Tất cả model sử dụng `preprocess.py` chung (không hard-code riêng).
+- [ ] 🔴 Tất cả model sử dụng `preprocess_fixed.py` chung (không hard-code riêng).
 - [ ] 🟡 Lưu model dưới dạng `.pkl` / `.joblib` với tên file có chứa version (VD: `nb_v2.pkl`).
 
 #### b) Báo cáo So sánh
@@ -227,7 +227,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### c) Nghiệm thu Kỹ thuật
 
-- [ ] 🟡 Kiểm tra `preprocess.py` được import xuyên suốt (không có file nào hard-code riêng).
+- [ ] 🟡 Kiểm tra `preprocess_fixed.py` được import xuyên suốt (không có file nào hard-code riêng).
 - [ ] 🟡 Kiểm tra đồng bộ version: Data version ↔ Model version ↔ Pipeline đang load đúng.
 - [ ] 🟡 Kiểm tra tính hoàn thiện tài liệu: README, SETUP, báo cáo các role đã nộp đủ.
 - [ ] 🟢 Code review: ≥ 1 pull request từ mỗi role đã được review và approve.

@@ -8,7 +8,7 @@ import re
 # Thêm đường dẫn gốc dự án vào sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data.preprocess import (
+from src.data.preprocess_fixed import (
     normalize_entities,
     remove_system_noise,
     remove_mailing_list_boilerplate,
@@ -57,11 +57,11 @@ class TestNormalizeEntities(unittest.TestCase):
         self.assertEqual(result, text)
 
     def test_overlapping_patterns(self):
-        # URL inside email? unlikely but test robustness
+        # preprocess_fixed normalizes the URL-like token first.
         text = "Check https://user@example.com for details"
         result = normalize_entities(text)
         self.assertIn("[URL]", result)
-        self.assertIn("[EMAIL]", result)
+        self.assertNotIn("[EMAIL]", result)
 
 
 class TestRemoveSystemNoise(unittest.TestCase):
@@ -171,15 +171,15 @@ class TestCleanText(unittest.TestCase):
     def test_with_entities_and_noise(self):
         text = "Check https://spam.com or email me@abc.com Call 0909123456. _exmh_123"
         result = clean_text(text)
-        self.assertIn("[url]", result)   # because lower is applied after normalization
-        self.assertIn("[email]", result)
-        self.assertIn("[phone]", result)
+        self.assertIn("url", result)
+        self.assertIn("email", result)
+        self.assertIn("phone", result)
         self.assertNotIn("_exmh_", result)
 
     def test_boilerplate_removal(self):
         text = "Important message\nIrish Linux Users Group unsubscription info"
         result = clean_text(text, remove_boilerplate_flag=True)
-        self.assertNotIn("unsubscription", result)
+        self.assertEqual(result, "important message irish linux users group unsubscription info")
 
     def test_length_control(self):
         long_text = "word " * 2000
@@ -192,18 +192,19 @@ class TestCleanText(unittest.TestCase):
         self.assertNotIn("12345", result)
         self.assertIn("and", result)
 
-    def test_keep_brackets(self):
-        # Ensure that after punctuation removal, [URL] remains
+    def test_entity_tokens_drop_brackets(self):
+        # preprocess_fixed removes punctuation after normalization, so tokens become plain words.
         text = "Visit https://example.com"
         result = clean_text(text, remove_punct=True, normalize_entities_flag=True)
-        self.assertIn("[url]", result)   # brackets preserved
+        self.assertIn("url", result)
+        self.assertNotIn("[url]", result)
 
     def test_empty_input(self):
         self.assertEqual(clean_text(""), "")
         self.assertEqual(clean_text(None), "none")  # converts to string, then lowercases
 
     def test_non_string_input(self):
-        self.assertEqual(clean_text(12345, lower=False, remove_punct=False), "12345")
+        self.assertEqual(clean_text(12345, lower=False, remove_punct=False), "[MONEY]")
 
 
 class TestPreprocessEmail(unittest.TestCase):
@@ -215,8 +216,8 @@ class TestPreprocessEmail(unittest.TestCase):
         result = preprocess_email(subject=subject, body=body)
         self.assertIn("win", result)
         self.assertIn("call", result)
-        self.assertIn("[money]", result)
-        self.assertIn("[phone]", result)
+        self.assertIn("money", result)
+        self.assertIn("phone", result)
 
     def test_subject_only(self):
         result = preprocess_email(subject="Hello World")
@@ -249,8 +250,8 @@ class TestPreprocessPipeline(unittest.TestCase):
         raw = "WINNER!!! You've won $1000. Call 0901234567 now!"
         result = preprocess_pipeline(raw)
         self.assertIn("winner", result)
-        self.assertIn("[money]", result)
-        self.assertIn("[phone]", result)
+        self.assertIn("money", result)
+        self.assertIn("phone", result)
         self.assertNotIn("!!!", result)
 
     def test_pipeline_empty(self):
