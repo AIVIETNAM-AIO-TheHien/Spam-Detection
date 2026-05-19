@@ -14,7 +14,7 @@ split:
   shuffle: true
 
 preprocess:
-  enabled: false
+  enabled: true
   lower: true
   remove_punct: true
   remove_numbers: false

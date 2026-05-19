@@ -11,5 +11,7 @@ __pycache__/
 .ipynb_checkpoints/
 
 experiments/baseline/*.joblib
+experiments/logistic_regression/*.joblib
+experiments/logistic_regression/runs/*/*.joblib
 models/*.joblib
 CLAUDE.md

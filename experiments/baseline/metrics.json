@@ -2,7 +2,7 @@
   "model": "multinomial_naive_bayes",
   "feature_extractor": "tfidf",
   "preprocess": {
-    "enabled": false,
+    "enabled": true,
     "lower": true,
     "remove_punct": true,
     "remove_numbers": false,
@@ -13,20 +13,20 @@
   },
   "split_file": "experiments/splits/split_indices.json",
   "dev": {
-    "accuracy": 0.9338747099767981,
-    "macro_f1": 0.9156125535214679,
-    "weighted_f1": 0.9316431746493389,
-    "spam_precision": 0.9805825242718447,
-    "spam_recall": 0.792156862745098,
-    "spam_f1": 0.8763557483731019
+    "accuracy": 0.9459459459459459,
+    "macro_f1": 0.9297589324149806,
+    "weighted_f1": 0.9442100731812311,
+    "spam_precision": 0.9945054945054945,
+    "spam_recall": 0.8153153153153153,
+    "spam_f1": 0.8960396039603961
   },
   "streamlit_model_path": "models\\baseline_pipeline.joblib",
   "test": {
-    "accuracy": 0.9316338354577057,
-    "macro_f1": 0.9114525455414981,
-    "weighted_f1": 0.9287437963677634,
-    "spam_precision": 1.0,
-    "spam_recall": 0.7686274509803922,
-    "spam_f1": 0.8691796008869179
+    "accuracy": 0.9395109395109396,
+    "macro_f1": 0.9215227411920188,
+    "weighted_f1": 0.9376250800097624,
+    "spam_precision": 0.9781420765027322,
+    "spam_recall": 0.8063063063063063,
+    "spam_f1": 0.8839506172839506
   }
 }
