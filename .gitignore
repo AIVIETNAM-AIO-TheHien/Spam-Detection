@@ -13,5 +13,7 @@ __pycache__/
 experiments/baseline/*.joblib
 experiments/logistic_regression/*.joblib
 experiments/logistic_regression/runs/*/*.joblib
+experiments/linear_svc/*.joblib
+experiments/linear_svc/runs/*/*.joblib
 models/*.joblib
 CLAUDE.md
