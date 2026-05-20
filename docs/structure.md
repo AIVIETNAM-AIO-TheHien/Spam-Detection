@@ -51,7 +51,7 @@ spam-detection/
 │   │   ├── Assassin_cleaned.csv      ← file data nằm lẫn với code
 │   │   ├── Assassin_preprocessed.csv ← file data nằm lẫn với code
 │   │   ├── W1.zip                    ← file nén không rõ nguồn gốc/mục đích
-│   │   ├── preprocess.py
+│   │   ├── preprocess_fixed.py
 │   │   └── validation.py
 │   ├── evaluation/
 │   │   └── metrics.py
@@ -90,7 +90,7 @@ spam-detection/
 | `scripts/evaluate_baseline.py` | Script | Đánh giá trên test set, append kết quả vào metrics.json |
 | `scripts/analyze_errors.py` | Script | Trích xuất FP/FN, phân tích pattern lỗi, xuất báo cáo |
 | `augment_data.py` | Script | **Đặt sai vị trí** — sinh augmentation plan, lưu vào configs/ |
-| `src/data/preprocess.py` | Library | Pipeline tiền xử lý: normalize entities, remove noise, clean_text, preprocess_pipeline |
+| `src/data/preprocess_fixed.py` | Library | Pipeline tiền xử lý: normalize entities, remove noise, clean_text, preprocess_pipeline |
 | `src/data/validation.py` | Library | Validate file tồn tại, schema cột, config split |
 | `src/data/raw/spam.csv` | Data | **Đặt sai vị trí** — dataset gốc UCI SMS Spam (5,574 dòng) |
 | `src/data/Assassin_cleaned.csv` | Data | **Đặt sai vị trí** — custom dataset đã làm sạch |
@@ -181,7 +181,7 @@ spam-detection/
 │
 ├── src/                               # Chỉ chứa library code (importable)
 │   ├── data/
-│   │   ├── preprocess.py
+│   │   ├── preprocess_fixed.py
 │   │   └── validation.py
 │   ├── evaluation/
 │   │   └── metrics.py

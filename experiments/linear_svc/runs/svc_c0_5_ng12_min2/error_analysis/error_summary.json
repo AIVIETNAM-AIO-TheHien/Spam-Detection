@@ -1,0 +1,28 @@
+{
+  "total_samples": 777,
+  "total_errors": 18,
+  "correct": 759,
+  "false_positive": 13,
+  "false_negative": 5,
+  "error_rate": 0.023166023166023165,
+  "error_groups": [
+    {
+      "error_type": "false_negative",
+      "count": 5,
+      "avg_message_length": 1102.4,
+      "avg_word_count": 165.8,
+      "url_count": 4,
+      "digit_count": 5,
+      "spam_keyword_count": 4
+    },
+    {
+      "error_type": "false_positive",
+      "count": 13,
+      "avg_message_length": 749.6923076923077,
+      "avg_word_count": 129.69230769230768,
+      "url_count": 8,
+      "digit_count": 8,
+      "spam_keyword_count": 8
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "model": "logistic_regression",
+  "feature_extractor": "tfidf",
+  "preprocess": {
+    "enabled": true,
+    "lower": true,
+    "remove_punct": true,
+    "remove_numbers": false,
+    "normalize_entities_flag": true,
+    "remove_noise_flag": true,
+    "remove_boilerplate_flag": true,
+    "max_words": 1024
+  },
+  "split_file": "experiments/splits/split_indices.json",
+  "dev": {
+    "accuracy": 0.9755469755469756,
+    "macro_f1": 0.9698397295116297,
+    "weighted_f1": 0.9754625488304763,
+    "spam_precision": 0.967741935483871,
+    "spam_recall": 0.9459459459459459,
+    "spam_f1": 0.9567198177676538
+  },
+  "streamlit_model_path": "models\\logistic_regression_pipeline.joblib",
+  "test": {
+    "accuracy": 0.9742599742599742,
+    "macro_f1": 0.9683827598554641,
+    "weighted_f1": 0.9742248864127832,
+    "spam_precision": 0.9590909090909091,
+    "spam_recall": 0.9504504504504504,
+    "spam_f1": 0.9547511312217195
+  },
+  "threshold_tuning": {
+    "selected_by": "best_dev_spam_f1",
+    "best_threshold": 0.48,
+    "dev": {
+      "accuracy": 0.9755469755469756,
+      "macro_f1": 0.9700044496548977,
+      "weighted_f1": 0.9755303811580771,
+      "spam_precision": 0.9592760180995475,
+      "spam_recall": 0.954954954954955,
+      "spam_f1": 0.9571106094808126
+    },
+    "test": {
+      "accuracy": 0.9768339768339769,
+      "macro_f1": 0.9716216216216216,
+      "weighted_f1": 0.9768339768339769,
+      "spam_precision": 0.9594594594594594,
+      "spam_recall": 0.9594594594594594,
+      "spam_f1": 0.9594594594594594
+    }
+  }
+}

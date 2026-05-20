@@ -1,18 +1,23 @@
 import json
 import os
 import sys
+from pathlib import Path
 
 import joblib
 import pandas as pd
 import yaml
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
 sys.path.append(os.getcwd())
 
+from src.data.preprocess_fixed import clean_text
 from src.data.validation import validate_file_exists, validate_required_columns
 from src.evaluation.metrics import compute_classification_metrics
-from src.data.preprocess import clean_text
+
+STREAMLIT_MODEL_PATH = Path("models/baseline_pipeline.joblib")
+
 
 def preprocess_text_series(texts, preprocess_cfg):
     texts = texts.fillna("").astype(str)
@@ -27,6 +32,7 @@ def preprocess_text_series(texts, preprocess_cfg):
     }
 
     return texts.apply(lambda text: clean_text(text, **clean_kwargs))
+
 
 def main():
     with open("configs/baseline.yaml", "r", encoding="utf-8") as f:
@@ -93,9 +99,19 @@ def main():
     )
 
     os.makedirs(output_cfg["experiment_dir"], exist_ok=True)
+    STREAMLIT_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     joblib.dump(model, output_cfg["model_path"])
     joblib.dump(vectorizer, output_cfg["vectorizer_path"])
+    joblib.dump(
+        Pipeline(
+            [
+                ("tfidf", vectorizer),
+                ("model", model),
+            ]
+        ),
+        STREAMLIT_MODEL_PATH,
+    )
 
     metrics = {
         "model": model_cfg["type"],
@@ -103,6 +119,7 @@ def main():
         "preprocess": preprocess_cfg,
         "split_file": split_cfg["indices_path"],
         "dev": dev_metrics,
+        "streamlit_model_path": str(STREAMLIT_MODEL_PATH),
     }
 
     with open(output_cfg["metrics_path"], "w", encoding="utf-8") as f:
