@@ -36,6 +36,10 @@ spam-detection/
 │   └── splits/
 │       └── split_indices.json
 │
+├── models/                           ← chứa *_pipeline.joblib để Streamlit load
+│   ├── baseline_pipeline.joblib
+│   └── logistic_regression_pipeline.joblib
+│
 ├── notebooks/                        ← thư mục rỗng
 │
 ├── scripts/
@@ -97,7 +101,8 @@ spam-detection/
 | `src/data/Assassin_preprocessed.csv` | Data | **Đặt sai vị trí** — custom dataset đã tiền xử lý |
 | `src/data/W1.zip` | Data | **Đặt sai vị trí** — file nén, không rõ nội dung/mục đích |
 | `src/evaluation/metrics.py` | Library | Tính accuracy, macro/weighted F1, spam precision/recall/F1 |
-| `src/models/` | — | **Rỗng** — dự kiến chứa model classes tương lai |
+| `models/` | Output | Chứa `*_pipeline.joblib` (sklearn Pipeline) để `streamlit_app.py` load — **không phải** nơi chứa model wrapper class |
+| `src/models/` | — | **Rỗng** — dự kiến chứa model wrapper/helper classes tương lai (logic Python, không phải file .joblib) |
 | `src/training/` | — | **Rỗng** — mục đích trùng lặp với scripts/ và src/models/ |
 | `src/utils/` | — | **Rỗng** — dự kiến shared utilities |
 | `tests/test_split_integrity.py` | Tests | 6 tests kiểm tra tính toàn vẹn của split (không overlap, đúng tỷ lệ) |

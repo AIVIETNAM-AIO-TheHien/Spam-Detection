@@ -13,6 +13,7 @@ from src.data.validation import validate_file_exists, validate_required_columns
 from src.evaluation.metrics import compute_classification_metrics
 
 
+# Áp dụng clean_text lên toàn bộ Series văn bản theo config
 def preprocess_text_series(texts, preprocess_cfg):
     texts = texts.fillna("").astype(str)
 
@@ -28,6 +29,7 @@ def preprocess_text_series(texts, preprocess_cfg):
     return texts.apply(lambda text: clean_text(text, **clean_kwargs))
 
 
+# Dự đoán dùng ngưỡng xác suất tùy chỉnh thay vì mặc định 0.5
 def predict_with_threshold(model, features, positive_label, threshold):
     probabilities = model.predict_proba(features)
     positive_class_index = list(model.classes_).index(positive_label)
@@ -43,6 +45,7 @@ def predict_with_threshold(model, features, positive_label, threshold):
     return predictions, positive_probabilities
 
 
+# Quét threshold 0.10–0.90 trên dev, chọn ngưỡng cho spam_f1 cao nhất
 def find_best_threshold(model, features, labels, positive_label):
     best_threshold = 0.5
     best_metrics = None
@@ -76,6 +79,7 @@ def find_best_threshold(model, features, labels, positive_label):
     return best_threshold, best_metrics
 
 
+# Load model đã train, evaluate test set, append kết quả vào metrics.json
 def main():
     with open("configs/logistic_regression.yaml", "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)

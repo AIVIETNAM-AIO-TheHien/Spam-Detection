@@ -52,6 +52,7 @@ EXPERIMENTS = [
 ]
 
 
+# Áp dụng clean_text lên toàn bộ Series văn bản theo config
 def preprocess_text_series(texts, preprocess_cfg):
     texts = texts.fillna("").astype(str)
 
@@ -67,6 +68,7 @@ def preprocess_text_series(texts, preprocess_cfg):
     return texts.apply(lambda text: clean_text(text, **clean_kwargs))
 
 
+# Ghi đè tham số model/vectorizer của run lên base config
 def apply_overrides(config, experiment):
     run_config = deepcopy(config)
 
@@ -77,6 +79,7 @@ def apply_overrides(config, experiment):
     return run_config
 
 
+# Trả về decision_function score cho class spam, đảo dấu nếu cần
 def positive_scores(model, features, positive_label):
     scores = model.decision_function(features)
     classes = list(model.classes_)
@@ -88,6 +91,7 @@ def positive_scores(model, features, positive_label):
     return scores
 
 
+# Dự đoán dùng ngưỡng decision score thay vì xác suất
 def predict_with_threshold(model, features, positive_label, threshold):
     scores = positive_scores(model, features, positive_label)
     negative_label = next(label for label in model.classes_ if label != positive_label)
@@ -100,6 +104,7 @@ def predict_with_threshold(model, features, positive_label, threshold):
     return predictions, scores
 
 
+# Tạo danh sách ngưỡng từ quantile của scores thực tế
 def threshold_candidates(scores):
     series = pd.Series(scores)
     quantiles = [i / 100 for i in range(1, 100)]
@@ -108,6 +113,7 @@ def threshold_candidates(scores):
     return sorted(set(candidates))
 
 
+# Quét threshold theo quantile scores, chọn ngưỡng cho spam_f1 cao nhất
 def find_best_threshold(model, features, labels, positive_label):
     scores = positive_scores(model, features, positive_label)
     best_threshold = 0.0
@@ -146,10 +152,12 @@ def find_best_threshold(model, features, labels, positive_label):
     return best_threshold, best_metrics
 
 
+# Chuyển nhãn số/chuỗi sang "spam"/"ham" để hiển thị
 def label_name(label, positive_label):
     return "spam" if label == positive_label else "ham"
 
 
+# Rút gọn văn bản dài để hiển thị trong báo cáo
 def short_text(text, max_length=220):
     text = " ".join(str(text).replace("|", "/").split())
     if len(text) <= max_length:
@@ -158,10 +166,12 @@ def short_text(text, max_length=220):
     return f"{text[:max_length].rstrip()}..."
 
 
+# Chuyển bool sang "có"/"không" cho báo cáo
 def format_bool(value):
     return "có" if bool(value) else "không"
 
 
+# Tạo DataFrame kết quả kèm error_type và các feature phụ
 def build_prediction_dataframe(
     df,
     text_column,
@@ -213,6 +223,7 @@ def build_prediction_dataframe(
     return result_df
 
 
+# Xuất phân tích lỗi: CSV, confusion matrix, JSON, báo cáo Markdown
 def save_error_analysis(
     run_dir,
     result_df,
@@ -399,6 +410,7 @@ def save_error_analysis(
     return summary
 
 
+# Train + evaluate 1 experiment run, trả về dict kết quả tổng hợp
 def train_and_evaluate_run(base_config, experiment, df, split):
     run_id = experiment["run_id"]
     run_config = apply_overrides(base_config, experiment)
@@ -547,6 +559,7 @@ def train_and_evaluate_run(base_config, experiment, df, split):
     }
 
 
+# Chạy 5 experiment run, tổng hợp kết quả vào experiment_summary.csv
 def main():
     with open(BASE_CONFIG_PATH, "r", encoding="utf-8") as f:
         base_config = yaml.safe_load(f)

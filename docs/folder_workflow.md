@@ -25,24 +25,14 @@
 
 **Thứ tự bắt buộc:**
 
-1. **Tạo model class trong `src/models/`**
-   ```
-   src/models/
-   ├── base.py          # Abstract BaseClassifier (fit, predict, save, load)
-   ├── naive_bayes.py
-   └── svm.py           ← tạo mới
-   ```
-   - Không đọc file, không đọc config trực tiếp trong class
-   - Nhận hyperparameters qua constructor
+1. **Tạo config trong `configs/`** (bước này giờ là đầu tiên)
+   - Tạo `configs/svm.yaml` định nghĩa kernel/C/output path
 
-2. **Tạo config trong `configs/`**
-   ```
-   configs/
-   ├── baseline.yaml    # NB — giữ nguyên
-   └── svm.yaml         ← tạo mới, định nghĩa kernel/C/output path
-   ```
+   > **Lưu ý về `models/` (root):** Thư mục này chứa `*_pipeline.joblib` — file sklearn Pipeline được xuất ra để `streamlit_app.py` load. Đây **không phải** nơi chứa model wrapper class hay code Python. Nếu script cần export pipeline cho Streamlit, lưu vào `models/{tên_model}_pipeline.joblib`.
+   >
+   > `src/models/` là nơi khác, dùng cho model wrapper/helper class (code Python) nếu cần tái sử dụng logic phức tạp.
 
-3. **Tạo script trong `scripts/`**
+2. **Tạo script trong `scripts/`**
    ```
    scripts/
    ├── train_baseline.py
@@ -50,7 +40,7 @@
    ```
    Script chỉ làm: đọc config → load data → gọi `src/` → ghi `experiments/`
 
-4. **Output vào `experiments/` theo tên model**
+3. **Output vào `experiments/` theo tên model**
    ```
    experiments/
    ├── baseline/
@@ -59,10 +49,10 @@
        └── metrics.json
    ```
 
-5. **Viết test trong `tests/`**
+4. **Viết test trong `tests/`**
    ```
    tests/
-   └── test_svm.py      ← test class trong src/models/svm.py
+   └── test_svm.py
    ```
 
 ---

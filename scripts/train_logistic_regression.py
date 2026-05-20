@@ -19,6 +19,7 @@ from src.evaluation.metrics import compute_classification_metrics
 STREAMLIT_MODEL_PATH = Path("models/logistic_regression_pipeline.joblib")
 
 
+# Áp dụng clean_text lên toàn bộ Series văn bản theo config
 def preprocess_text_series(texts, preprocess_cfg):
     texts = texts.fillna("").astype(str)
 
@@ -34,6 +35,7 @@ def preprocess_text_series(texts, preprocess_cfg):
     return texts.apply(lambda text: clean_text(text, **clean_kwargs))
 
 
+# Train LR, đánh giá trên dev, lưu model và metrics
 def main():
     with open("configs/logistic_regression.yaml", "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
