@@ -13,7 +13,7 @@ Mục tiêu là giải thích vì sao kết quả thay đổi giữa các cấu 
 
 Tất cả thí nghiệm dùng cùng dataset và cùng split:
 
-- Dataset: `src/data/Assassin_preprocessed.csv`
+- Dataset: `data/custom/Assassin_preprocessed.csv`
 - Tổng số mẫu: 5178
 - Train/dev/test: 3624 / 777 / 777
 - Test set: 555 ham, 222 spam

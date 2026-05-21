@@ -95,8 +95,7 @@ def generate_augmentation_plan():
     print("   - Tuần 2: Thu thập 200-300 mẫu seed cho mỗi domain từ các nguồn công khai")
     print("   - Tuần 3: Áp dụng back-translation và paraphrase để nhân bản")
     print("   - Tuần 4: Sử dụng LLM để sinh thêm mẫu mới, kiểm tra chất lượng bằng tay")
-    
-    # Lưu kế hoạch ra file JSON
+
     os.makedirs("configs", exist_ok=True)
     plan = {
         "domains_to_add": MISSING_DOMAINS,
@@ -104,15 +103,52 @@ def generate_augmentation_plan():
         "total_samples": total,
         "timeline": {
             "week2": "Collect 200-300 seed samples per domain from public sources",
-            "week3": "Apply back‑translation and paraphrase",
-            "week4": "Generate with LLM and manual quality check"
+            "week3": "Apply back-translation and paraphrase",
+            "week4": "Generate with LLM and manual quality check",
         },
-        "notes": "Manually verify 10% of generated samples; keep source metadata."
+        "notes": "Manually verify 10% of generated samples; keep source metadata.",
     }
     with open("configs/augmentation_plan.json", "w", encoding="utf-8") as f:
         json.dump(plan, f, indent=2, ensure_ascii=False)
     
-    print("\n✅ Đã lưu kế hoạch chi tiết vào configs/augmentation_plan.json")
+    os.makedirs("docs", exist_ok=True)
+    with open("docs/augmentation_plan.md", "w", encoding="utf-8") as f:
+        f.write("# Augmentation Plan\n\n")
+        f.write("## Domains to Add\n\n")
+        f.write("| Domain | Priority | Quantity | Description |\n")
+        f.write("| :--- | :---: | ---: | :--- |\n")
+        for domain, info in MISSING_DOMAINS.items():
+            f.write(
+                f"| {domain} | {info['priority']} | {info['quantity']} | "
+                f"{info['description']} |\n"
+            )
+
+        f.write(f"\nTotal planned samples: {total}\n\n")
+        f.write("## Techniques\n\n")
+        for tech, details in AUGMENTATION_TECHNIQUES.items():
+            f.write(f"### {tech}\n\n")
+            f.write(f"- Description: {details['description']}\n")
+            tools = ", ".join(details["libraries"]) if "libraries" in details else details.get("tool", "N/A")
+            f.write(f"- Tools: {tools}\n")
+            if "cost" in details:
+                f.write(f"- Cost: {details['cost']}\n")
+            if "expected_output" in details:
+                f.write(f"- Expected output: {details['expected_output']}\n")
+            if "note" in details:
+                f.write(f"- Note: {details['note']}\n")
+            if "prompt_example" in details:
+                f.write(f"- Prompt example: `{details['prompt_example']}`\n")
+            f.write("\n")
+
+        f.write("## Timeline\n\n")
+        f.write("- Week 2: Collect 200-300 seed samples per domain from public sources.\n")
+        f.write("- Week 3: Apply back-translation and paraphrase.\n")
+        f.write("- Week 4: Generate with LLM and manually check quality.\n\n")
+        f.write("## Notes\n\n")
+        f.write("- Manually verify 10% of generated samples.\n")
+        f.write("- Keep source metadata for generated samples.\n")
+
+    print("\n✅ Đã lưu kế hoạch vào configs/augmentation_plan.json và docs/augmentation_plan.md")
 
 if __name__ == "__main__":
     generate_augmentation_plan()

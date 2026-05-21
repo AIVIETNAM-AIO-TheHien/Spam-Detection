@@ -28,7 +28,7 @@
 1. **Tạo config trong `configs/`** (bước này giờ là đầu tiên)
    - Tạo `configs/svm.yaml` định nghĩa kernel/C/output path
 
-   > **Lưu ý về `models/` (root):** Thư mục này chứa `*_pipeline.joblib` — file sklearn Pipeline được xuất ra để `streamlit_app.py` load. Đây **không phải** nơi chứa model wrapper class hay code Python. Nếu script cần export pipeline cho Streamlit, lưu vào `models/{tên_model}_pipeline.joblib`.
+   > **Lưu ý về `models/` (root):** Thư mục này chứa `*_pipeline.joblib` — file sklearn Pipeline được xuất ra để `scripts/streamlit_app.py` load. Đây **không phải** nơi chứa model wrapper class hay code Python. Nếu script cần export pipeline cho Streamlit, lưu vào `models/{tên_model}_pipeline.joblib`.
    >
    > `src/models/` là nơi khác, dùng cho model wrapper/helper class (code Python) nếu cần tái sử dụng logic phức tạp.
 

@@ -4,7 +4,7 @@ Ngày báo cáo: 2026-05-19
 
 ## 1. Mục tiêu
 
-Báo cáo này so sánh mô hình baseline TF-IDF + Multinomial Naive Bayes với mô hình Logistic Regression tốt nhất sau khi dataset `src/data/Assassin_preprocessed.csv` được cập nhật lại.
+Báo cáo này so sánh mô hình baseline TF-IDF + Multinomial Naive Bayes với mô hình Logistic Regression tốt nhất sau khi dataset `data/custom/Assassin_preprocessed.csv` được cập nhật lại.
 
 Tất cả kết quả bên dưới dùng cùng một split mới, được tạo lại bằng seed 42:
 

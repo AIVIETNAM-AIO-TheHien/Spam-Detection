@@ -1,10 +1,10 @@
-# Cấu trúc Dự án — Hiện trạng & Đề xuất
+# Cấu trúc dự án
 
----
+Tài liệu này mô tả cấu trúc hiện tại của repo sau khi đã dọn lại theo chức năng. Mục tiêu là tách rõ code, dữ liệu, cấu hình, tài liệu, script chạy pipeline và output thí nghiệm.
 
-## 1. Cấu trúc Hiện tại
+## Cấu trúc thư mục
 
-```
+```text
 spam-detection/
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
@@ -13,217 +13,100 @@ spam-detection/
 │   └── PULL_REQUEST_TEMPLATE.md
 │
 ├── configs/
+│   ├── augmentation_plan.json
 │   ├── baseline.yaml
-│   └── augmentation_plan.json       ← file được sinh ra bởi script, không phải config tĩnh
+│   ├── linear_svc.yaml
+│   └── logistic_regression.yaml
+│
+├── data/
+│   ├── raw/
+│   │   └── spam.csv
+│   └── custom/
+│       └── Assassin_preprocessed.csv
 │
 ├── docs/
 │   ├── Plan.md
 │   ├── QA_QC.md
-│   └── feedback_preprocess.md
+│   ├── augmentation_plan.md
+│   ├── baseline_vs_best_logistic_regression_report.md
+│   ├── datacollection_guide.md
+│   ├── feedback_preprocess.md
+│   ├── folder_workflow.md
+│   ├── logistic_regression_vs_linear_svc_report.md
+│   └── structure.md
 │
 ├── experiments/
 │   ├── baseline/
-│   │   ├── model.joblib
-│   │   ├── vectorizer.joblib
-│   │   ├── metrics.json
-│   │   └── error_analysis/
-│   │       ├── all_predictions.csv
-│   │       ├── prediction_errors.csv
-│   │       ├── confusion_matrix.csv
-│   │       ├── error_summary.json
-│   │       ├── error_analysis_report.md
-│   │       └── preprocess_error_comparison_report.md
+│   ├── linear_svc/
+│   ├── logistic_regression/
 │   └── splits/
 │       └── split_indices.json
 │
-├── models/                           ← chứa *_pipeline.joblib để Streamlit load
-│   ├── baseline_pipeline.joblib
-│   └── logistic_regression_pipeline.joblib
-│
-├── notebooks/                        ← thư mục rỗng
+├── notebooks/
 │
 ├── scripts/
+│   ├── analyze_errors.py
+│   ├── augment_data.py
 │   ├── create_split.py
-│   ├── train_baseline.py
 │   ├── evaluate_baseline.py
-│   └── analyze_errors.py
+│   ├── evaluate_logistic_regression.py
+│   ├── run_linear_svc_experiments.py
+│   ├── run_logistic_experiments.py
+│   ├── streamlit_app.py
+│   ├── train_baseline.py
+│   └── train_logistic_regression.py
 │
 ├── src/
 │   ├── data/
-│   │   ├── raw/
-│   │   │   └── spam.csv              ← dữ liệu gốc nằm trong thư mục source code
-│   │   ├── Assassin_cleaned.csv      ← file data nằm lẫn với code
-│   │   ├── Assassin_preprocessed.csv ← file data nằm lẫn với code
-│   │   ├── W1.zip                    ← file nén không rõ nguồn gốc/mục đích
 │   │   ├── preprocess_fixed.py
 │   │   └── validation.py
 │   ├── evaluation/
 │   │   └── metrics.py
-│   ├── models/                       ← thư mục rỗng
-│   ├── training/                     ← thư mục rỗng
-│   └── utils/                        ← thư mục rỗng
+│   ├── models/
+│   └── utils/
 │
 ├── tests/
-│   ├── test_split_integrity.py
-│   └── test_preprocess.py
+│   ├── test_preprocess.py
+│   └── test_split_integrity.py
 │
-├── augment_data.py                   ← script nằm ở root thay vì scripts/
-├── datacollection_guide.md           ← tài liệu nằm ở root thay vì docs/
-├── CLAUDE.md
 ├── README.md
 └── requirements.txt
 ```
 
-### Mô tả chức năng từng thành phần
+## Vai trò từng thư mục
 
-| Đường dẫn | Loại | Chức năng |
-| :--- | :---: | :--- |
-| `.github/` | Config | GitHub Actions templates, PR/Issue templates |
-| `configs/baseline.yaml` | Config | Toàn bộ hyperparameters: split, preprocess, TF-IDF, model, output paths |
-| `configs/augmentation_plan.json` | Output | **File sinh ra** bởi `augment_data.py`, liệt kê domain cần bổ sung và kỹ thuật augment |
-| `docs/Plan.md` | Docs | Kế hoạch 2 tuần, phân chia vai trò 4 nhóm |
-| `docs/QA_QC.md` | Docs | Tiêu chí nghiệm thu P0/P1/P2 theo tuần |
-| `docs/feedback_preprocess.md` | Docs | Phản hồi và quyết định thiết kế preprocessing |
-| `datacollection_guide.md` | Docs | **Đặt sai vị trí** — hướng dẫn thu thập dữ liệu spam mới |
-| `experiments/baseline/` | Output | Model, vectorizer, metrics của experiment baseline |
-| `experiments/baseline/error_analysis/` | Output | Báo cáo phân tích lỗi, so sánh trước/sau preprocess |
-| `experiments/splits/split_indices.json` | Output | Chỉ số phân tách train/dev/test cố định (seed=42) |
-| `notebooks/` | — | **Rỗng** — chưa có notebook nào |
-| `scripts/create_split.py` | Script | Tạo stratified split, từ chối ghi đè nếu đã tồn tại |
-| `scripts/train_baseline.py` | Script | Huấn luyện TF-IDF + MultinomialNB, lưu model + dev metrics |
-| `scripts/evaluate_baseline.py` | Script | Đánh giá trên test set, append kết quả vào metrics.json |
-| `scripts/analyze_errors.py` | Script | Trích xuất FP/FN, phân tích pattern lỗi, xuất báo cáo |
-| `augment_data.py` | Script | **Đặt sai vị trí** — sinh augmentation plan, lưu vào configs/ |
-| `src/data/preprocess_fixed.py` | Library | Pipeline tiền xử lý: normalize entities, remove noise, clean_text, preprocess_pipeline |
-| `src/data/validation.py` | Library | Validate file tồn tại, schema cột, config split |
-| `src/data/raw/spam.csv` | Data | **Đặt sai vị trí** — dataset gốc UCI SMS Spam (5,574 dòng) |
-| `src/data/Assassin_cleaned.csv` | Data | **Đặt sai vị trí** — custom dataset đã làm sạch |
-| `src/data/Assassin_preprocessed.csv` | Data | **Đặt sai vị trí** — custom dataset đã tiền xử lý |
-| `src/data/W1.zip` | Data | **Đặt sai vị trí** — file nén, không rõ nội dung/mục đích |
-| `src/evaluation/metrics.py` | Library | Tính accuracy, macro/weighted F1, spam precision/recall/F1 |
-| `models/` | Output | Chứa `*_pipeline.joblib` (sklearn Pipeline) để `streamlit_app.py` load — **không phải** nơi chứa model wrapper class |
-| `src/models/` | — | **Rỗng** — dự kiến chứa model wrapper/helper classes tương lai (logic Python, không phải file .joblib) |
-| `src/training/` | — | **Rỗng** — mục đích trùng lặp với scripts/ và src/models/ |
-| `src/utils/` | — | **Rỗng** — dự kiến shared utilities |
-| `tests/test_split_integrity.py` | Tests | 6 tests kiểm tra tính toàn vẹn của split (không overlap, đúng tỷ lệ) |
-| `tests/test_preprocess.py` | Tests | 14 tests cho preprocess pipeline |
+| Thư mục | Vai trò | Quy ước |
+| :--- | :--- | :--- |
+| `.github/` | Template cho issue và pull request | Giữ nguyên, không trộn code hoặc tài liệu dự án vào đây |
+| `configs/` | Cấu hình chạy pipeline và kế hoạch augmentation dạng máy đọc được |
+| `data/` | Dữ liệu của dự án | CSV/ZIP/dataset đặt ở đây, không đặt trong `src/` |
+| `docs/` | Tài liệu | Kế hoạch, hướng dẫn, báo cáo, cấu trúc repo |
+| `experiments/` | Output của pipeline | Metrics, prediction, report, split index, artifact thí nghiệm |
+| `notebooks/` | Khám phá dữ liệu và thử nghiệm nhanh | Không để production code trong notebook |
+| `scripts/` | Entry point chạy từ CLI | Script đọc config, gọi code trong `src/`, ghi output ra `experiments/` hoặc artifact hợp lệ |
+| `src/` | Library code importable | Chỉ chứa Python module dùng lại được, không chứa file data |
+| `tests/` | Kiểm thử | Test cho preprocess, split và logic ổn định của repo |
 
----
+## Nguyên tắc phân loại
 
-## 2. Vấn đề Hiện tại
+- `src/` chỉ chứa code Python có thể import.
+- `scripts/` chứa file chạy trực tiếp, ví dụ train, evaluate, analyze, Streamlit app.
+- `data/` chứa dữ liệu: raw data trong `data/raw/`, dữ liệu custom hoặc đã xử lý trong `data/custom/`.
+- `configs/` chứa cấu hình và file JSON được workflow cần đọc. Riêng `augmentation_plan.json` được giữ lại vì còn được sử dụng.
+- `docs/` chứa tài liệu Markdown cho người đọc. `docs/augmentation_plan.md` là bản human-readable của kế hoạch augmentation.
+- `experiments/` chứa output sinh ra từ pipeline, bao gồm metrics, error analysis, split index và kết quả chạy model.
 
-### Vấn đề 1 — Data file lẫn vào source code (`src/data/`)
-`src/` là thư mục **library code** (importable Python modules). Các file `.csv`, `.zip` là **dữ liệu**, không phải code. Việc đặt chung gây nhầm lẫn về ranh giới data ↔ code, khó gitignore dữ liệu lớn, khó quản lý version data sau này (DVC).
+## Các thay đổi đã áp dụng
 
-### Vấn đề 2 — Script `augment_data.py` nằm ở root
-Root chỉ nên chứa file cấu hình dự án (`README.md`, `CLAUDE.md`, `requirements.txt`, `.gitignore`). Script thực thi thuộc về `scripts/`.
+| Trước | Sau | Lý do |
+| :--- | :--- | :--- |
+| `src/data/raw/spam.csv` | `data/raw/spam.csv` | Dataset gốc không nên nằm trong source code |
+| `src/data/Assassin_preprocessed.csv` | `data/custom/Assassin_preprocessed.csv` | Dataset custom/preprocessed thuộc nhóm dữ liệu |
+| `augment_data.py` | `scripts/augment_data.py` | Script thực thi thuộc `scripts/` |
+| `streamlit_app.py` | `scripts/streamlit_app.py` | App chạy trực tiếp cũng là entry point |
+| `datacollection_guide.md` | `docs/datacollection_guide.md` | Tài liệu thuộc `docs/` |
+| `src/training/` | Xóa | Thư mục rỗng, trách nhiệm bị trùng với `scripts/`, `src/models/`, `src/utils/` |
 
-### Vấn đề 3 — `datacollection_guide.md` nằm ở root
-Tài liệu thuộc về `docs/`. Root bị ô nhiễm bởi file không phải project config.
+## Lưu ý về augmentation plan
 
-### Vấn đề 4 — `configs/augmentation_plan.json` là output, không phải config
-File này được sinh ra bởi `augment_data.py` (generated output). Đặt trong `configs/` gây nhầm lẫn với file config tĩnh như `baseline.yaml`. Output của scripts nên ở `experiments/` hoặc `docs/`.
-
-### Vấn đề 5 — `src/training/` mờ nhạt và trùng lặp
-`scripts/` đã chứa training logic. `src/training/` rỗng và không rõ sẽ chứa gì khác với `src/models/`. Nếu sau này cần training utilities, nên gộp vào `src/models/` hoặc `src/utils/`.
-
-### Vấn đề 6 — `W1.zip` không có tài liệu
-File nén không rõ nguồn gốc, nội dung, liên quan đến dataset nào. Cần được giải nén, đặt tên rõ ràng, hoặc xóa.
-
----
-
-## 3. Đề xuất Cấu trúc Mới
-
-```
-spam-detection/
-├── .github/                           # Giữ nguyên
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── PULL_REQUEST_TEMPLATE.md
-│
-├── configs/                           # Chỉ chứa config tĩnh
-│   └── baseline.yaml
-│
-├── data/                              # TẤT CẢ dữ liệu ra khỏi src/
-│   ├── raw/                           # Dataset gốc, không chỉnh sửa
-│   │   └── spam.csv
-│   └── custom/                        # Dataset tùy chỉnh / augmented
-│       ├── Assassin_cleaned.csv
-│       ├── Assassin_preprocessed.csv
-│       └── W1.zip                     # Hoặc giải nén, đặt tên rõ hơn
-│
-├── docs/                              # Toàn bộ tài liệu dự án
-│   ├── Plan.md
-│   ├── QA_QC.md
-│   ├── feedback_preprocess.md
-│   ├── datacollection_guide.md        # ← chuyển từ root
-│   └── augmentation_plan.md           # ← chuyển từ configs/, đổi sang .md (human-readable)
-│
-├── experiments/                       # Giữ nguyên — output của pipeline
-│   ├── baseline/
-│   │   ├── model.joblib
-│   │   ├── vectorizer.joblib
-│   │   ├── metrics.json
-│   │   └── error_analysis/
-│   │       ├── all_predictions.csv
-│   │       ├── prediction_errors.csv
-│   │       ├── confusion_matrix.csv
-│   │       ├── error_summary.json
-│   │       ├── error_analysis_report.md
-│   │       └── preprocess_error_comparison_report.md
-│   └── splits/
-│       └── split_indices.json
-│
-├── notebooks/                         # Exploration notebooks
-│
-├── scripts/                           # Tất cả script thực thi
-│   ├── create_split.py
-│   ├── train_baseline.py
-│   ├── evaluate_baseline.py
-│   ├── analyze_errors.py
-│   └── augment_data.py                # ← chuyển từ root
-│
-├── src/                               # Chỉ chứa library code (importable)
-│   ├── data/
-│   │   ├── preprocess_fixed.py
-│   │   └── validation.py
-│   ├── evaluation/
-│   │   └── metrics.py
-│   ├── models/                        # Future: model classes
-│   └── utils/                        # Future: shared utilities
-│                                      # src/training/ bị xóa (gộp vào models/ hoặc utils/)
-│
-├── tests/
-│   ├── test_split_integrity.py
-│   └── test_preprocess.py
-│
-├── CLAUDE.md
-├── README.md
-└── requirements.txt
-```
-
-### Tóm tắt thay đổi
-
-| Thay đổi | Từ | Đến | Lý do |
-| :--- | :--- | :--- | :--- |
-| Script augmentation | `augment_data.py` (root) | `scripts/augment_data.py` | Script thực thi thuộc `scripts/` |
-| Tài liệu thu thập data | `datacollection_guide.md` (root) | `docs/datacollection_guide.md` | Tài liệu thuộc `docs/` |
-| Dataset gốc | `src/data/raw/` | `data/raw/` | Data không phải code |
-| Custom datasets | `src/data/*.csv`, `*.zip` | `data/custom/` | Data không phải code |
-| Augmentation plan | `configs/augmentation_plan.json` | `docs/augmentation_plan.md` | Output/tài liệu, không phải config tĩnh |
-| Xóa `src/training/` | `src/training/` (rỗng) | — | Trùng lặp với `scripts/` + `src/models/` |
-| Config `data.input_path` | `"src/data/raw/spam.csv"` | `"data/raw/spam.csv"` | Cập nhật path trong `configs/baseline.yaml` |
-
-### Nguyên tắc phân chia
-
-```
-src/       ← Library code: hàm Python có thể import, không chạy trực tiếp
-scripts/   ← Executable scripts: chạy từ CLI để thực hiện một bước pipeline
-data/      ← Dữ liệu: CSV, JSON, ZIP — không bao giờ lẫn vào src/
-configs/   ← Config tĩnh: YAML/JSON định nghĩa hyperparameters
-docs/      ← Tài liệu: kế hoạch, hướng dẫn, báo cáo dạng Markdown
-experiments/ ← Output: model, metrics, error analysis — do pipeline sinh ra
-tests/     ← Unit/integration tests cho code trong src/
-notebooks/ ← Jupyter notebooks: EDA, prototyping
-```
+Ban đầu `configs/augmentation_plan.json` được xem như generated output, nhưng file này có thể đang được workflow hoặc người khác đọc trực tiếp. Vì vậy repo giữ lại file này trong `configs/`. Script `scripts/augment_data.py` tiếp tục sinh `configs/augmentation_plan.json`, đồng thời sinh thêm `docs/augmentation_plan.md` để đọc dễ hơn.
