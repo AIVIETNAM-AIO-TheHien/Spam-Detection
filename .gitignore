@@ -14,4 +14,6 @@ experiments/logistic_regression/runs/*/*.joblib
 experiments/linear_svc/*.joblib
 experiments/linear_svc/runs/*/*.joblib
 models/*.joblib
+!models/linear_svc_pipeline.joblib
+!models/logistic_regression_pipeline.joblib
 CLAUDE.md

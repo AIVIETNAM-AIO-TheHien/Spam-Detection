@@ -10,6 +10,7 @@ import yaml
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
+from sklearn.pipeline import Pipeline
 
 sys.path.append(os.getcwd())
 
@@ -21,6 +22,8 @@ from src.evaluation.metrics import compute_classification_metrics
 BASE_CONFIG_PATH = Path("configs/logistic_regression.yaml")
 RUNS_DIR = Path("experiments/logistic_regression/runs")
 SUMMARY_PATH = Path("experiments/logistic_regression/experiment_summary.csv")
+STREAMLIT_MODEL_PATH = Path("models/logistic_regression_pipeline.joblib")
+STREAMLIT_METRICS_PATH = Path("models/logistic_regression_metrics.json")
 
 
 EXPERIMENTS = [
@@ -577,7 +580,31 @@ def main():
     SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
     summary_df.to_csv(SUMMARY_PATH, index=False)
 
+    best_run_dir = Path(summary_df.iloc[0]["run_dir"])
+    best_model = joblib.load(best_run_dir / "model.joblib")
+    best_vectorizer = joblib.load(best_run_dir / "vectorizer.joblib")
+
+    STREAMLIT_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(
+        Pipeline(
+            [
+                ("tfidf", best_vectorizer),
+                ("model", best_model),
+            ]
+        ),
+        STREAMLIT_MODEL_PATH,
+    )
+
+    with open(best_run_dir / "metrics.json", "r", encoding="utf-8") as f:
+        best_metrics = json.load(f)
+    best_metrics["streamlit_model_path"] = str(STREAMLIT_MODEL_PATH)
+    best_metrics["source_run_dir"] = str(best_run_dir)
+    with open(STREAMLIT_METRICS_PATH, "w", encoding="utf-8") as f:
+        json.dump(best_metrics, f, indent=2)
+
     print(f"Saved experiment summary to: {SUMMARY_PATH}")
+    print(f"Saved Streamlit model to: {STREAMLIT_MODEL_PATH}")
+    print(f"Saved Streamlit metrics to: {STREAMLIT_METRICS_PATH}")
     print(summary_df.to_string(index=False))
 
 

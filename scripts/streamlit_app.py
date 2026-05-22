@@ -29,6 +29,7 @@ class ModelSpec:
     default_model_path: Path
     default_vectorizer_path: Path
     pipeline_path: Optional[Path] = None
+    pipeline_metrics_path: Optional[Path] = None
 
 
 @dataclass
@@ -49,6 +50,7 @@ MODEL_SPECS = [
         default_model_path=ROOT_DIR / "experiments/linear_svc/model.joblib",
         default_vectorizer_path=ROOT_DIR / "experiments/linear_svc/vectorizer.joblib",
         pipeline_path=ROOT_DIR / "models/linear_svc_pipeline.joblib",
+        pipeline_metrics_path=ROOT_DIR / "models/linear_svc_metrics.json",
     ),
     ModelSpec(
         name="Logistic Regression",
@@ -57,6 +59,7 @@ MODEL_SPECS = [
         default_model_path=ROOT_DIR / "experiments/logistic_regression/model.joblib",
         default_vectorizer_path=ROOT_DIR / "experiments/logistic_regression/vectorizer.joblib",
         pipeline_path=ROOT_DIR / "models/logistic_regression_pipeline.joblib",
+        pipeline_metrics_path=ROOT_DIR / "models/logistic_regression_metrics.json",
     ),
 ]
 
@@ -156,13 +159,19 @@ def load_models() -> tuple[list[ModelBundle], list[str]]:
         bundle = None
 
         if spec.pipeline_path and spec.pipeline_path.exists():
+            metrics = load_json(spec.pipeline_metrics_path) if spec.pipeline_metrics_path else {}
+            threshold = (
+                metrics.get("threshold_tuning", {}).get("best_threshold")
+                if isinstance(metrics.get("threshold_tuning"), dict)
+                else None
+            )
             bundle = ModelBundle(
                 spec=spec,
                 estimator=joblib.load(spec.pipeline_path),
                 vectorizer=None,
                 source_dir=spec.pipeline_path.parent,
-                metrics=load_json(spec.pipeline_path.parent / "metrics.json"),
-                best_threshold=None,
+                metrics=metrics,
+                best_threshold=threshold,
             )
 
         if bundle is None:
