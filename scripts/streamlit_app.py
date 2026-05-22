@@ -290,6 +290,113 @@ def metric_value(metrics: dict, key: str) -> Optional[float]:
     return float(value) if value is not None else None
 
 
+def percent_text(value: Optional[float]) -> str:
+    return f"{value:.2%}" if value is not None else "N/A"
+
+
+def number_text(value: Optional[float]) -> str:
+    return f"{value:.4f}" if value is not None else "N/A"
+
+
+def build_comparison_table(results: list[dict]) -> pd.DataFrame:
+    rows = []
+    for result in results:
+        rows.append(
+            {
+                "Model": result["model"],
+                "Prediction": result["label"],
+                "Default prediction": result["default_label"],
+                "Test accuracy": percent_text(metric_value(result["metrics"], "accuracy")),
+                "Spam F1": percent_text(metric_value(result["metrics"], "spam_f1")),
+                "Spam probability": percent_text(result["spam_probability"]),
+                "Decision score": number_text(result["score"]),
+                "Threshold": number_text(result["threshold"]),
+                "Artifact": relative_path(result["source_dir"]),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def show_input_email_section(show_cleaned_text: bool) -> tuple[str, bool]:
+    with st.container(border=True):
+        st.subheader("[1] Input Email")
+        st.caption("Paste raw email content here. The app preprocesses it before sending it to the models.")
+
+        text_input = st.text_area(
+            "Email content",
+            height=240,
+            placeholder=(
+                "Example: Congratulations! You have won a free prize. "
+                "Click http://example.com now to claim your reward."
+            ),
+        )
+
+        col_predict, col_hint = st.columns([1, 3])
+        predict_button = col_predict.button("Classify email", type="primary", use_container_width=True)
+        col_hint.caption("Input can include headers, URLs, phone numbers, HTML, or unprocessed text.")
+
+        if show_cleaned_text:
+            st.caption("Processed text will appear after classification.")
+
+    return text_input, predict_button
+
+
+def show_prediction_summary_section(results: list[dict], cleaned_text: str, show_cleaned_text: bool) -> None:
+    with st.container(border=True):
+        st.subheader("[2] Prediction Summary")
+
+        spam_votes = sum(1 for result in results if is_spam(result["raw_prediction"]))
+        total_votes = len(results)
+        ham_votes = total_votes - spam_votes
+        final_label = "Spam" if spam_votes >= ham_votes else "Ham / Không spam"
+        agreement = len({result["label"] for result in results}) == 1
+
+        col_verdict, col_vote, col_words, col_agreement = st.columns(4)
+        col_verdict.metric("Final verdict", final_label)
+        col_vote.metric("Model votes", f"{spam_votes} spam / {ham_votes} ham")
+        col_words.metric("Processed words", len(cleaned_text.split()))
+        col_agreement.metric("Agreement", "Yes" if agreement else "No")
+
+        if final_label == "Spam":
+            st.error("The email is classified as Spam by the model ensemble.")
+        else:
+            st.success("The email is classified as Ham / Không spam by the model ensemble.")
+
+        if show_cleaned_text:
+            with st.expander("Processed text", expanded=False):
+                st.code(cleaned_text or "(empty)", language="text")
+
+
+def show_model_details_section(results: list[dict]) -> None:
+    with st.container(border=True):
+        st.subheader("[3] Model Details / Comparison")
+        st.dataframe(build_comparison_table(results), hide_index=True, use_container_width=True)
+
+        for result in results:
+            with st.expander(f"{result['model']} details", expanded=False):
+                details = []
+                if result["confidence"] is not None:
+                    details.append(f"Confidence: {result['confidence']:.2%}")
+                if result["spam_probability"] is not None:
+                    details.append(f"Spam probability: {result['spam_probability']:.2%}")
+                if result["score"] is not None:
+                    details.append(f"Decision score: {result['score']:.4f}")
+                if result["threshold"] is not None:
+                    details.append(f"Threshold: {result['threshold']:.4f}")
+
+                if details:
+                    st.caption(" | ".join(details))
+
+                if result["probabilities"] is not None and result["classes"] is not None:
+                    probability_table = pd.DataFrame(
+                        {
+                            "Class": [normalize_prediction(label) for label in result["classes"]],
+                            "Probability": [f"{prob:.2%}" for prob in result["probabilities"]],
+                        }
+                    )
+                    st.dataframe(probability_table, hide_index=True, use_container_width=True)
+
+
 def show_prediction_card(result: dict) -> None:
     label = result["label"]
     status = "spam" if is_spam(result["raw_prediction"]) else "ham"
@@ -373,6 +480,28 @@ def main() -> None:
             language="bash",
         )
         return
+
+    st.caption("End-to-end email classification with preprocessing, prediction summary, and model comparison.")
+
+    text_input, predict_button = show_input_email_section(show_cleaned_text)
+
+    if not predict_button:
+        st.info("Enter an email and click Classify email to see the prediction summary and model comparison.")
+        return
+
+    if not text_input.strip():
+        st.warning("Please enter email content before classification.")
+        return
+
+    cleaned_text = clean_text(text_input)
+    results = [
+        predict_with_optional_threshold(bundle, cleaned_text, use_threshold)
+        for bundle in bundles
+    ]
+
+    show_prediction_summary_section(results, cleaned_text, show_cleaned_text)
+    show_model_details_section(results)
+    return
 
     text_input = st.text_area(
         "Nội dung email",
