@@ -45,13 +45,13 @@ False positive là mẫu ham bị dự đoán nhầm thành spam. False negative
 | # | P(spam) | True | Pred | URL | Số | Keyword | Nội dung rút gọn |
 |---:|---:|---|---|---|---|---|---|
 | 1 | 0.6294 | ham | spam | không | có | có | take all your music on the road zdnet shopper buyer alert july 12 2002 when ordering make sure the reseller manufacturer provides the rebate coupon you need expires july 5 2002 $50 off cidco mailstation with subscription... |
-| 2 | 0.6152 | ham | spam | có | có | có | iiu nameserver problems four of the nameservers are publishing out of date dns information the four listed below are publishing the zone from last friday they are six days behind reality 192 16 202 11 net 192 93 0 4 ns2... |
-| 3 | 0.8746 | ham | spam | có | có | có | ashfield online 9 1 2002 aric mckeown ashfield online 2002 aric mckeown comic for sunday september 1 2002 powered flash keenspot comic visit the ashfield online website at URL ! click here URL note you not see comic in t... |
-| 4 | 0.8425 | ham | spam | không | không | không | asteroids anyone this multi part message in mime format |
-| 5 | 0.9055 | ham | spam | không | không | không | hi! new here this multi part message in mime format |
-| 6 | 0.5159 | ham | spam | có | có | có | vulnwatch foundstone labs advisory information leakage in orinoco and compaq access points foundstone labs advisory apil advisory name information leakage in orinoco and compaq access points release date august 9th 2002... |
-| 7 | 0.8652 | ham | spam | không | không | không | inspiring article howard jonas who founded idt this multi part message in mime format |
-| 8 | 0.6296 | ham | spam | không | có | có | personal laser picks for students soho users and more! zdnet shopper buyer alert july 16 2002 when ordering make sure the reseller manufacturer provides the rebate coupon you need expires july 5 2002 $50 off cidco mailst... |
+| 2 | 0.6155 | ham | spam | có | có | có | iiu nameserver problems four of the nameservers are publishing out of date dns information the four listed below are publishing the zone from last friday they are six days behind reality 192 16 202 11 net 192 93 0 4 ns2... |
+| 3 | 0.8757 | ham | spam | có | có | có | ashfield online 9 1 2002 aric mckeown ashfield online 2002 aric mckeown comic for sunday september 1 2002 powered flash keenspot comic visit the ashfield online website at URL ! click here URL note you not see comic in t... |
+| 4 | 0.8430 | ham | spam | không | không | không | asteroids anyone this multi part message in mime format |
+| 5 | 0.9059 | ham | spam | không | không | không | hi! new here this multi part message in mime format |
+| 6 | 0.5162 | ham | spam | có | có | có | vulnwatch foundstone labs advisory information leakage in orinoco and compaq access points foundstone labs advisory apil advisory name information leakage in orinoco and compaq access points release date august 9th 2002... |
+| 7 | 0.8656 | ham | spam | không | không | không | inspiring article howard jonas who founded idt this multi part message in mime format |
+| 8 | 0.6293 | ham | spam | không | có | có | personal laser picks for students soho users and more! zdnet shopper buyer alert july 16 2002 when ordering make sure the reseller manufacturer provides the rebate coupon you need expires july 5 2002 $50 off cidco mailst... |
 
 Nhận xét nhanh: false positive thường là các email ham có hình thức giống spam, ví dụ newsletter, thông báo có nhiều link, giá tiền, khuyến mãi, hoặc MIME/html.
 
@@ -59,14 +59,14 @@ Nhận xét nhanh: false positive thường là các email ham có hình thức 
 
 | # | P(spam) | True | Pred | URL | Số | Keyword | Nội dung rút gọn |
 |---:|---:|---|---|---|---|---|---|
-| 1 | 0.4507 | spam | ham | không | không | không | get on the bus gbvzzzz click here to see the bang bus wild!!!!!! tepyycemkckiflbsvpcyi |
-| 2 | 0.2178 | spam | ham | có | có | có | the gold buddha in 1957 monastery in thailand was being relocated and group of monks was put in charge of moving giant clay buddha in the midst of the move one of the monks noticed crack in the buddha concerned about dam... |
-| 3 | 0.3266 | spam | ham | có | có | có | hassle free microsoft sql server remote database administration ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL visit at URL call at 214 740 0923 to removed reply with remove in the subject line |
-| 4 | 0.3438 | spam | ham | có | có | có | sps odrekao slobodana milosevica socijalisticka partija srbije predvodjena grupom starih socijalista celu milomirem minicem konacno odrekla politike herojskog drzanja predsednika stranke slobodana milosevica saopstenjima... |
-| 5 | 0.3202 | spam | ham | không | có | không | the mighty pro grill ! adv 2147pbqg 8 |
-| 6 | 0.4259 | spam | ham | có | có | có | ceviri yazilimlari html nternette kendnz daha hssedeceksnz nglzce web sayfalarinin trke evr yazilimi $ 39 kdv nglzce den trke blgsayar destekl metn evr yazilimi word altinda kullanim windows versyonlari uyumlu $ 69 kdv y... |
+| 1 | 0.4491 | spam | ham | không | không | không | get on the bus gbvzzzz click here to see the bang bus wild!!!!!! tepyycemkckiflbsvpcyi |
+| 2 | 0.2179 | spam | ham | có | có | có | the gold buddha in 1957 monastery in thailand was being relocated and group of monks was put in charge of moving giant clay buddha in the midst of the move one of the monks noticed crack in the buddha concerned about dam... |
+| 3 | 0.3273 | spam | ham | có | có | có | hassle free microsoft sql server remote database administration ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL ! URL visit at URL call at 214 740 0923 to removed reply with remove in the subject line |
+| 4 | 0.3432 | spam | ham | có | có | có | sps odrekao slobodana milosevica socijalisticka partija srbije predvodjena grupom starih socijalista celu milomirem minicem konacno odrekla politike herojskog drzanja predsednika stranke slobodana milosevica saopstenjima... |
+| 5 | 0.3190 | spam | ham | không | có | không | the mighty pro grill ! adv 2147pbqg 8 |
+| 6 | 0.4260 | spam | ham | có | có | có | ceviri yazilimlari html nternette kendnz daha hssedeceksnz nglzce web sayfalarinin trke evr yazilimi $ 39 kdv nglzce den trke blgsayar destekl metn evr yazilimi word altinda kullanim windows versyonlari uyumlu $ 69 kdv y... |
 | 7 | 0.2514 | spam | ham | có | có | có | discreet penis enlargement 4623 ! URL ! URL 4623 |
-| 8 | 0.4112 | spam | ham | có | có | có | scoop ceviri yazilimlari html nternette kendnz daha hssedeceksnz nglzce web sayfalarinin trke evr yazilimi $ 39 kdv nglzce den trke blgsayar destekl metn evr yazilimi word altinda kullanim windows versyonlari uyumlu $ 69... |
+| 8 | 0.4106 | spam | ham | có | có | có | scoop ceviri yazilimlari html nternette kendnz daha hssedeceksnz nglzce web sayfalarinin trke evr yazilimi $ 39 kdv nglzce den trke blgsayar destekl metn evr yazilimi word altinda kullanim windows versyonlari uyumlu $ 69... |
 
 Nhận xét nhanh: false negative là nhóm cần ưu tiên đọc kỹ, vì đây là spam bị bỏ sót. Nếu các mẫu này thiếu keyword spam rõ ràng, cần xem xét thêm feature về URL, phone, money token, ngôn ngữ lạ, hoặc bổ sung data cùng pattern.
 

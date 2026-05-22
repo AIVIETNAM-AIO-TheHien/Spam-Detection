@@ -47,7 +47,7 @@
   },
   "threshold_tuning": {
     "selected_by": "best_dev_spam_f1",
-    "best_threshold": -0.19541013457030915,
+    "best_threshold": -0.19619401643568238,
     "dev": {
       "accuracy": 0.9871299871299871,
       "macro_f1": 0.9843184900542495,

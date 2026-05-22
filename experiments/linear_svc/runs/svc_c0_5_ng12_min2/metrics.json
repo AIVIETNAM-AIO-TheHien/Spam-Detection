@@ -47,14 +47,14 @@
   },
   "threshold_tuning": {
     "selected_by": "best_dev_spam_f1",
-    "best_threshold": -0.20802004601041804,
+    "best_threshold": -0.21058263759655507,
     "dev": {
-      "accuracy": 0.9819819819819819,
-      "macro_f1": 0.9780458860759493,
-      "weighted_f1": 0.9820298372513563,
-      "spam_precision": 0.9601769911504425,
-      "spam_recall": 0.9774774774774775,
-      "spam_f1": 0.96875
+      "accuracy": 0.9845559845559846,
+      "macro_f1": 0.9811821880650995,
+      "weighted_f1": 0.9845970033583055,
+      "spam_precision": 0.9646017699115044,
+      "spam_recall": 0.9819819819819819,
+      "spam_f1": 0.9732142857142857
     },
     "test": {
       "accuracy": 0.9768339768339769,

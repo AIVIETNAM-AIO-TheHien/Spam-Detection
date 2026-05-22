@@ -1,6 +1,6 @@
 {
   "data": {
-    "input_path": "src/data/Assassin_preprocessed.csv",
+    "input_path": "data/custom/Assassin_preprocessed.csv",
     "text_column": "text",
     "label_column": "label",
     "positive_label": 1.0
