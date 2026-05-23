@@ -231,6 +231,20 @@ def positive_probabilities(estimator: Any, features) -> tuple[Optional[np.ndarra
     return probabilities, classes
 
 
+def estimate_probabilities_from_score(
+    estimator: Any,
+    score: float,
+) -> tuple[np.ndarray, np.ndarray, float]:
+    classes = list(getattr(estimator, "classes_", [])) or [0.0, POSITIVE_LABEL]
+    clipped_score = float(np.clip(score, -60, 60))
+    spam_probability = float(1 / (1 + np.exp(-clipped_score)))
+    class_probabilities = [
+        spam_probability if label == POSITIVE_LABEL else 1 - spam_probability
+        for label in classes
+    ]
+    return np.asarray([class_probabilities]), np.asarray(classes), spam_probability
+
+
 def predict_with_optional_threshold(bundle: ModelBundle, cleaned_text: str, use_threshold: bool) -> dict:
     features = transform_input(bundle, cleaned_text)
     estimator = bundle.estimator
@@ -241,9 +255,11 @@ def predict_with_optional_threshold(bundle: ModelBundle, cleaned_text: str, use_
     spam_probability = None
     probabilities = None
     classes = None
+    probability_source = None
 
     probabilities, classes = positive_probabilities(estimator, features)
     if probabilities is not None and classes is not None and len(classes):
+        probability_source = "model"
         class_list = list(classes)
         if POSITIVE_LABEL in class_list:
             spam_probability = float(probabilities[0][class_list.index(POSITIVE_LABEL)])
@@ -252,13 +268,17 @@ def predict_with_optional_threshold(bundle: ModelBundle, cleaned_text: str, use_
     if scores is not None:
         score = float(scores[0])
 
+    if probabilities is None and score is not None:
+        probabilities, classes, spam_probability = estimate_probabilities_from_score(estimator, score)
+        probability_source = "estimated from decision score"
+
     if use_threshold and bundle.best_threshold is not None:
         negative_label = next(
             (label for label in getattr(estimator, "classes_", []) if label != POSITIVE_LABEL),
             0.0,
         )
 
-        if spam_probability is not None:
+        if spam_probability is not None and probability_source == "model":
             final_prediction = POSITIVE_LABEL if spam_probability >= bundle.best_threshold else negative_label
         elif score is not None:
             final_prediction = POSITIVE_LABEL if score >= bundle.best_threshold else negative_label
@@ -277,6 +297,7 @@ def predict_with_optional_threshold(bundle: ModelBundle, cleaned_text: str, use_
         "score": score,
         "classes": classes,
         "probabilities": probabilities[0] if probabilities is not None else None,
+        "probability_source": probability_source,
         "threshold": bundle.best_threshold if use_threshold else None,
         "source_dir": bundle.source_dir,
         "metrics": bundle.metrics,
@@ -309,6 +330,7 @@ def build_comparison_table(results: list[dict]) -> pd.DataFrame:
                 "Test accuracy": percent_text(metric_value(result["metrics"], "accuracy")),
                 "Spam F1": percent_text(metric_value(result["metrics"], "spam_f1")),
                 "Spam probability": percent_text(result["spam_probability"]),
+                "Probability source": result["probability_source"] or "N/A",
                 "Decision score": number_text(result["score"]),
                 "Threshold": number_text(result["threshold"]),
                 "Artifact": relative_path(result["source_dir"]),
@@ -383,6 +405,8 @@ def show_model_details_section(results: list[dict]) -> None:
                     details.append(f"Decision score: {result['score']:.4f}")
                 if result["threshold"] is not None:
                     details.append(f"Threshold: {result['threshold']:.4f}")
+                if result["probability_source"] is not None:
+                    details.append(f"Probability source: {result['probability_source']}")
 
                 if details:
                     st.caption(" | ".join(details))
