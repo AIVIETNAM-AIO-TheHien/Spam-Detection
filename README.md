@@ -93,7 +93,8 @@ Repo hiện có hai file dữ liệu chính:
 
 | Đường dẫn | Mục đích |
 |---|---|
-| `data/raw/Assassin.csv` | Dataset SMS spam/ham gốc |
+| `data/raw/Assassin.csv` | Email spam/ham corpus gốc
+| `data/raw/spam.csv` | SMS spam/ham dataset tham khảo
 | `data/custom/Assassin_preprocessed.csv` | Dataset email-style đã tiền xử lý, dùng cho các thí nghiệm hiện tại |
 
 Tóm tắt dataset custom hiện tại:
