@@ -129,6 +129,10 @@ Tất cả mô hình chính đều dùng TF-IDF features và cùng một fixed t
 | LinearSVC | Default decision boundary | 0.9833 | 0.9772 | 0.9640 | 0.9705 | 5 | 8 |
 | LinearSVC | Dev-tuned F1 threshold | 0.9794 | 0.9478 | 0.9820 | 0.9646 | 12 | 4 |
 
+Nhìn từ bảng kết quả, LinearSVC có hai hướng sử dụng khác nhau. Với default decision boundary, model đạt Spam F1 = 0.9705, false positive = 5 và false negative = 8. Khi dùng dev-tuned F1 threshold, model giảm false negative xuống 4 nhưng false positive tăng lên 12, đồng thời Spam F1 giảm còn 0.9646.
+
+Vì vậy, nếu mục tiêu là hạn chế việc ham bị dự đoán nhầm thành spam, LinearSVC với default decision boundary là lựa chọn an toàn hơn. Nếu mục tiêu là bắt spam mạnh hơn, tuned threshold có thể được cân nhắc, nhưng cần chấp nhận rủi ro false positive cao hơn.
+
 ## Cài đặt
 
 Clone repository và cài đặt dependencies:
@@ -249,8 +253,8 @@ Workflow khuyến nghị:
 
 ## Hướng cải thiện tiếp theo
 
-- Thêm cách tìm threshold theo hướng precision-oriented, ví dụ tối đa hóa spam precision nhưng vẫn giữ recall trên một mức tối thiểu.
-- Bổ sung thêm real-world ham examples để giảm false positive.
+- Thử nhiều chiến lược chọn threshold khác nhau tùy theo mục tiêu triển khai, ví dụ ưu tiên giảm false positives hoặc ưu tiên giảm false negatives.
+- Bổ sung thêm real-world ham examples và hard negative examples để giảm các trường hợp ham bị dự đoán nhầm thành spam.
 - Bổ sung thêm phishing, scam và promotional spam mới.
 - Tạo một QA test set nhỏ gồm các edge cases cho cả spam và ham.
 - Cập nhật các report để thống nhất với dataset, split và mục tiêu hiện tại của project.
