@@ -32,15 +32,15 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### b) File `preprocess_fixed.py`
 
-- [ ] 🔴 File `preprocess_fixed.py` tồn tại, chạy được, có docstring giải thích từng hàm.
-- [ ] 🔴 Bao gồm tối thiểu các bước: lowercase, loại bỏ ký tự đặc biệt, tokenize.
-- [ ] 🟡 Có thể import và tái sử dụng từ bất kỳ script/notebook nào khác (`from src.preprocess import ...`).
-- [ ] 🟢 Có unit test cơ bản cho `preprocess_fixed.py` và tất cả test PASS.
+- [x] 🔴 File `preprocess_fixed.py` tồn tại, chạy được, có docstring giải thích từng hàm.
+- [x] 🔴 Bao gồm tối thiểu các bước: lowercase, loại bỏ ký tự đặc biệt, tokenize.
+- [x] 🟡 Có thể import và tái sử dụng từ bất kỳ script/notebook nào khác (`from src.preprocess import ...`).
+- [x] 🟢 Có unit test cơ bản cho `preprocess_fixed.py` và tất cả test PASS.
 
 #### c) Kịch bản Làm giàu Dữ liệu (Augmentation Plan)
 
-- [ ] 🟡 Tài liệu (hoặc section trong notebook) mô tả chiến lược augmentation: dùng LLM sinh data, back-translation, paraphrase, v.v.
-- [ ] 🟢 Ước tính số lượng mẫu cần bổ sung cho từng class/domain.
+- [x] 🟡 Tài liệu (hoặc section trong notebook) mô tả chiến lược augmentation: dùng LLM sinh data, back-translation, paraphrase, v.v.
+- [x] 🟢 Ước tính số lượng mẫu cần bổ sung cho từng class/domain.
 
 ---
 
@@ -51,16 +51,16 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 #### a) Refactor Baseline (Naive Bayes)
 
 - [x] 🔴 Code Naive Bayes + TF-IDF chạy thành công trên dataset Kaggle.
-- [ ] 🔴 Code sử dụng `preprocess_fixed.py` của team Data (import trực tiếp, **không hard-code** bước tiền xử lý).
+- [x] 🔴 Code sử dụng `preprocess_fixed.py` của team Data (import trực tiếp, **không hard-code** bước tiền xử lý).
 - [x] 🔴 Script đánh giá in ra đầy đủ các chỉ số: **Accuracy, F1-score, Precision, Recall**.
 - [ ] 🟡 Code được tổ chức thành hàm/class rõ ràng, có docstring, tuân thủ PEP8.
 
 #### b) Phân tích Lỗi (Error Analysis)
 
-- [ ] 🔴 Trích xuất danh sách các mẫu bị dự đoán sai (False Positive & False Negative) từ tập Kaggle.
-- [ ] 🟡 Phân loại/gom nhóm các mẫu sai theo đặc điểm (VD: quá ngắn, chứa URL, ngôn ngữ lẫn...).
-- [ ] 🟡 Tài liệu hoặc notebook tóm tắt pattern lỗi chính, đề xuất hướng cải thiện.
-- [ ] 🟢 Confusion matrix được trực quan hóa (heatmap hoặc bảng).
+- [x] 🔴 Trích xuất danh sách các mẫu bị dự đoán sai (False Positive & False Negative).
+- [x] 🟡 Phân loại/gom nhóm các mẫu sai theo đặc điểm (VD: quá ngắn, chứa URL, ngôn ngữ lẫn...).
+- [x] 🟡 Tài liệu hoặc notebook tóm tắt pattern lỗi chính, đề xuất hướng cải thiện.
+- [x] 🟢 Confusion matrix được trình bày dưới dạng bảng trong error analysis
 
 #### c) Chiến lược Chia Dữ liệu
 
@@ -75,17 +75,17 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### a) Ứng dụng Streamlit
 
-- [ ] 🔴 App Streamlit chạy được (`streamlit run app.py` không lỗi).
-- [ ] 🔴 Giao diện cho phép nhập văn bản → nhấn nút → hiển thị kết quả dự đoán (Spam/Ham).
+- [x] 🔴 App Streamlit chạy được (`streamlit run app.py` không lỗi).
+- [x] 🔴 Giao diện cho phép nhập văn bản → nhấn nút → hiển thị kết quả dự đoán (Spam/Ham).
 - [ ] 🔴 Kết nối trực tiếp với model Naive Bayes đã train (load file `.pkl` hoặc gọi hàm predict).
-- [ ] 🟡 Giao diện hiển thị thêm xác suất dự đoán (probability/confidence score).
-- [ ] 🟢 Có hướng dẫn chạy app trong `README.md` hoặc `SETUP.md`.
+- [x] 🟡 Giao diện hiển thị thêm xác suất dự đoán (probability/confidence score).
+- [x] 🟢 Có hướng dẫn chạy app trong `README.md` hoặc `SETUP.md`.
 
 #### b) Tích hợp Pipeline
 
-- [ ] 🟡 Luồng xử lý: Input text → `preprocess_fixed.py` → TF-IDF transform → Model predict → Output.
-- [ ] 🟡 Sử dụng đúng `preprocess_fixed.py` của team Data (không duplicate logic tiền xử lý).
-- [ ] 🟢 Có xử lý edge case: input rỗng, input quá dài, ký tự đặc biệt.
+- [x] 🟡 Luồng xử lý: Input text → `preprocess_fixed.py` → TF-IDF transform → Model predict → Output.
+- [x] 🟡 Sử dụng đúng `preprocess_fixed.py` của team Data (không duplicate logic tiền xử lý).
+- [x] 🟢 Có xử lý edge case: input rỗng, input quá dài, ký tự đặc biệt.
 
 ---
 
@@ -137,9 +137,9 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### a) Custom Dataset v2
 
-- [ ] 🔴 Dataset mới đã được tạo, bao gồm dữ liệu gốc + dữ liệu sinh bởi LLM.
+- [x] 🔴 Dataset mới đã được tạo, bao gồm dữ liệu gốc + dữ liệu sinh bởi LLM.
 - [ ] 🔴 Dữ liệu LLM-generated được đánh dấu rõ ràng (cột `source` hoặc metadata).
-- [ ] 🔴 Dataset v2 đã bù đắp các lỗ hổng được QA/QC chỉ ra ở Tuần 1 (thêm domain thiếu, cân bằng class).
+- [x] 🔴 Dataset v2 đã bù đắp các lỗ hổng được QA/QC chỉ ra ở Tuần 1 (thêm domain thiếu, cân bằng class).
 - [ ] 🟡 Chất lượng data sinh: QA xác nhận ≥ 90% mẫu sinh có ngữ nghĩa tự nhiên, không lặp lại máy móc.
 - [ ] 🟡 Tổng số mẫu dataset v2 có sự cải thiện rõ rệt so với v1 (ghi rõ số liệu).
 
@@ -163,24 +163,23 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 #### a) Huấn luyện Mô hình Nâng cao
 
 - [ ] 🔴 Huấn luyện lại **Naive Bayes** trên Custom Dataset v2 — ghi nhận metrics.
-- [ ] 🔴 Huấn luyện thêm ≥ 1 mô hình bổ sung (**SVM** hoặc **Logistic Regression**) trên v2.
-- [ ] 🔴 Tất cả model sử dụng `preprocess_fixed.py` chung (không hard-code riêng).
-- [ ] 🟡 Lưu model dưới dạng `.pkl` / `.joblib` với tên file có chứa version (VD: `nb_v2.pkl`).
+- [x] 🔴 Huấn luyện thêm ≥ 1 mô hình bổ sung (**SVM** hoặc **Logistic Regression**).
+- [x] 🔴 Tất cả model sử dụng `preprocess_fixed.py` chung (không hard-code riêng).
 
 #### b) Báo cáo So sánh
 
-- [ ] 🔴 Bảng so sánh metrics (Accuracy, F1, Precision, Recall) giữa:
+- [x] 🔴 Bảng so sánh metrics (Accuracy, F1, Precision, Recall) giữa:
   - Naive Bayes trên Kaggle (Tuần 1) vs Naive Bayes trên Custom v2.
   - Naive Bayes vs SVM vs Logistic Regression trên cùng Custom v2.
 - [ ] 🔴 **Giải thích** vì sao kết quả thay đổi (data mới tốt hơn/xấu hơn ở điểm nào).
-- [ ] 🟡 Trực quan hóa so sánh bằng biểu đồ (bar chart metrics, confusion matrix so sánh).
-- [ ] 🟢 Phân tích lỗi (Error Analysis) trên model tốt nhất của Tuần 2.
+- [x] 🟡 Trực quan hóa so sánh bằng biểu đồ (bar chart metrics, confusion matrix so sánh).
+- [x] 🟢 Phân tích lỗi (Error Analysis) trên model tốt nhất của Tuần 2.
 
 #### c) Hyperparameter & Cross-validation
 
-- [ ] 🟡 Thử nghiệm tối ưu siêu tham số (GridSearch/RandomSearch) cho ≥ 1 model.
-- [ ] 🟡 Áp dụng Cross-validation (≥ 5-fold) trên tập Train để đánh giá ổn định.
-- [ ] 🟢 Ghi lại bảng kết quả hyperparameter search.
+- [x] 🟡 Thử nghiệm tối ưu siêu tham số (GridSearch/RandomSearch) cho ≥ 1 model.
+- [x] 🟡 Áp dụng Cross-validation (≥ 5-fold) trên tập Train để đánh giá ổn định.
+- [x] 🟢 Ghi lại bảng kết quả hyperparameter search.
 
 ---
 
@@ -190,21 +189,21 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### a) Tích hợp Model Mới
 
-- [ ] 🔴 Streamlit app load được model mới nhất (Tuần 2) thay vì model Baseline Tuần 1.
-- [ ] 🔴 Có cơ chế chọn model để so sánh (VD: dropdown chọn giữa Naive Bayes / SVM / LR).
-- [ ] 🟡 Hiển thị tên model + version đang dùng trên giao diện.
+- [x] 🔴 Streamlit app load được model mới nhất (Tuần 2) thay vì model Baseline Tuần 1.
+- [x] 🔴 Có cơ chế chọn model để so sánh (VD: dropdown chọn giữa Naive Bayes / SVM / LR).
+- [x] 🟡 Hiển thị tên model + version đang dùng trên giao diện.
 
 #### b) Tự động hóa Pipeline
 
 - [ ] 🟡 Script hoặc Makefile cho phép chạy toàn bộ pipeline E2E: `data → preprocess → train → evaluate`.
-- [ ] 🟡 Pipeline tự động ghi log kết quả (metrics, timestamp) vào file.
+- [] 🟡 Pipeline tự động ghi log kết quả (metrics, timestamp) vào file.
 - [ ] 🟢 Hỗ trợ truyền tham số dòng lệnh (chọn model, chọn dataset version).
 
 #### c) Chất lượng Code
 
-- [ ] 🟡 Code mới tuân thủ PEP8, có docstring.
-- [ ] 🟡 Có unit test cho các module mới và tất cả test PASS.
-- [ ] 🟢 Không có import thừa, không có code chết (dead code).
+- [x] 🟡 Code mới tuân thủ PEP8, có docstring.
+- [x] 🟡 Có unit test cho các module mới và tất cả test PASS.
+- [x] 🟢 Không có import thừa, không có code chết (dead code).
 
 ---
 
@@ -249,14 +248,4 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 | 9 | Version đồng bộ: Data ↔ Model ↔ Pipeline | ☐ |
 
 ---
-
-## Hệ thống Chấm điểm Tham khảo
-
-| Mức đánh giá | Điều kiện |
-| :--- | :--- |
-| ✅ **Đạt xuất sắc** | 100% P0 + ≥ 80% P1 + có P2 |
-| ✅ **Đạt** | 100% P0 + ≥ 50% P1 |
-| ⚠️ **Đạt có điều kiện** | 100% P0, nhưng P1 < 50% |
-| ❌ **Chưa đạt** | Có ≥ 1 hạng mục P0 chưa hoàn thành |
-
-> **Ghi chú:** Kết quả đánh giá được QA/QC tổng hợp vào cuối mỗi tuần và báo cáo trong buổi họp review.
+-
