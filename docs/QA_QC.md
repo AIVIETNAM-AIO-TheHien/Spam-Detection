@@ -119,10 +119,10 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 | # | Hạng mục | Trạng thái |
 | :---: | :--- | :---: |
 | 1 | Dataset gốc đã chuẩn hóa và lưu đúng vị trí | ☑ |
-| 2 | `preprocess_fixed.py` hoạt động, có thể import xuyên suốt | ☐ |
+| 2 | `preprocess_fixed.py` hoạt động, có thể import xuyên suốt | ☑ |
 | 3 | Baseline Naive Bayes chạy thành công, có metrics rõ ràng | ☑ |
 | 4 | Error Analysis: danh sách mẫu sai đã được trích xuất | ☐ |
-| 5 | Streamlit app chạy được, nhập text → trả kết quả | ☐ |
+| 5 | Streamlit app chạy được, nhập text → trả kết quả | ☑ |
 | 6 | Bộ test black-box ≥ 30 câu đã thực hiện xong | ☐ |
 | 7 | Báo cáo QA Tuần 1 đã hoàn thành | ☐ |
 | 8 | Issue Log đã cập nhật | ☐ |
@@ -239,13 +239,13 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 | :---: | :--- | :---: |
 | 1 | Custom Dataset v2 đã phát hành, có giải trình so sánh v1 vs v2 | ☐ |
 | 2 | DVC đã cấu hình, track được v1 và v2 | ☐ |
-| 3 | ≥ 2 model đã huấn luyện trên v2, có bảng so sánh metrics | ☐ |
-| 4 | Báo cáo giải thích sự thay đổi kết quả | ☐ |
-| 5 | Streamlit cập nhật model mới, có dropdown chọn model | ☐ |
+| 3 | ≥ 2 model đã huấn luyện, có bảng so sánh metrics | ☑ |
+| 4 | Báo cáo giải thích sự thay đổi kết quả | ☑ |
+| 5 | Streamlit cập nhật model mới, có dropdown chọn model | ☑ |
 | 6 | Pipeline E2E có thể chạy tự động | ☐ |
 | 7 | Stress-test ≥ 40 test-cases đã hoàn thành | ☐ |
 | 8 | Báo cáo đối chiếu Tuần 1 vs Tuần 2 đã nộp | ☐ |
-| 9 | Version đồng bộ: Data ↔ Model ↔ Pipeline | ☐ |
+| 9 | Version đồng bộ: Data ↔ Model ↔ Pipeline | ☑ |
 
 ---
 -
