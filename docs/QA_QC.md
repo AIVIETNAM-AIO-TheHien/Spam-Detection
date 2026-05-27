@@ -75,7 +75,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### a) Ứng dụng Streamlit
 
-- [x] 🔴 App Streamlit chạy được (`streamlit run app.py` không lỗi).
+- [x] 🔴 App Streamlit chạy được (`streamlit run scripts/streamlit_app.py` không lỗi).
 - [x] 🔴 Giao diện cho phép nhập văn bản → nhấn nút → hiển thị kết quả dự đoán (Spam/Ham).
 - [ ] 🔴 Kết nối trực tiếp với model Naive Bayes đã train (load file `.pkl` hoặc gọi hàm predict).
 - [x] 🟡 Giao diện hiển thị thêm xác suất dự đoán (probability/confidence score).
@@ -121,7 +121,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 | 1 | Dataset gốc đã chuẩn hóa và lưu đúng vị trí | ☑ |
 | 2 | `preprocess_fixed.py` hoạt động, có thể import xuyên suốt | ☑ |
 | 3 | Baseline Naive Bayes chạy thành công, có metrics rõ ràng | ☑ |
-| 4 | Error Analysis: danh sách mẫu sai đã được trích xuất | ☐ |
+| 4 | Error Analysis: danh sách mẫu sai đã được trích xuất | ☑ |
 | 5 | Streamlit app chạy được, nhập text → trả kết quả | ☑ |
 | 6 | Bộ test black-box ≥ 30 câu đã thực hiện xong | ☐ |
 | 7 | Báo cáo QA Tuần 1 đã hoàn thành | ☐ |
