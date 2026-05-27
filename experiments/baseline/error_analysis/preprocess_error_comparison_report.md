@@ -1,4 +1,5 @@
 # So sánh Error Analysis Trước và Sau Preprocess
+> Note: Báo cáo này thuộc baseline experiment cũ và có thể không còn khớp hoàn toàn với fixed split hiện tại. Kết quả model chính nên tham khảo các report mới trong `docs/` và các metrics tương ứng trong `experiments/logistic_regression/` hoặc `experiments/linear_svc/`.
 
 ## 1. Mục tiêu
 
