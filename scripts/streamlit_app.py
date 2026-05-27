@@ -480,7 +480,7 @@ def main() -> None:
         st.header("Thiết lập")
         use_threshold = st.toggle(
             "Dùng threshold tốt nhất từ dev set",
-            value=True,
+            value=False,
             help="Áp dụng best_threshold đã lưu trong metrics của từng experiment, nếu có.",
         )
         show_cleaned_text = st.toggle("Hiển thị text sau tiền xử lý", value=True)
