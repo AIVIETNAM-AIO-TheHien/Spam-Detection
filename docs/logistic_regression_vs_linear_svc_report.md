@@ -184,10 +184,11 @@ Logistic Regression đã là một cải thiện lớn so với baseline Naive B
 
 Kết luận cuối:
 
-| Model | Spam F1 | Spam recall | False negative | Nhận xét |
-|---|---:|---:|---:|---|
-| Naive Bayes baseline | 0.8840 | 0.8063 | 43 | Làm mốc baseline ổn, nhưng bỏ sót nhiều spam |
-| Logistic Regression tốt nhất | 0.9595 | 0.9595 | 9 | Rất tốt, cân bằng precision/recall |
-| LinearSVC tốt nhất theo dev | 0.9646 | 0.9820 | 4 | Nên chọn làm model chính hiện tại |
+| Model | Spam F1 | Spam recall | False positive | False negative | Nhận xét |
+|---|---:|---:|---:|---:|---|
+| Naive Bayes baseline | 0.8840 | 0.8063 | 4 | 43 | Làm mốc baseline, nhưng bỏ sót nhiều spam |
+| Logistic Regression tốt nhất | 0.9595 | 0.9595 | 9 | 9 | Cân bằng precision/recall |
+| LinearSVC default boundary | 0.9705 | 0.9640 | 5 | 8 | Lựa chọn an toàn hơn nếu muốn hạn chế false positive |
+| LinearSVC tuned threshold | 0.9646 | 0.9820 | 12 | 4 | Bắt được nhiều spam hơn nhưng tăng false positive |
 
-LinearSVC nên được chọn làm model ứng viên chính hiện tại. Bước tiếp theo nên kiểm chứng thêm bằng cross-validation hoặc test set mới, sau đó mới chốt production model.
+Với mục tiêu hạn chế việc ham bị dự đoán nhầm thành spam, LinearSVC default decision boundary nên được chọn làm cấu hình chính cho demo/README. Bản tuned threshold có thể được giữ lại như một cấu hình so sánh khi muốn ưu tiên spam recall.
