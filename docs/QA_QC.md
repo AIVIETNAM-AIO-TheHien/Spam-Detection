@@ -102,15 +102,15 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 #### b) Báo cáo Kiểm thử Tuần 1
 
 - [ ] 🔴 Tài liệu (hoặc bảng) thống kê: tổng số test, số đúng, số sai, tỷ lệ chính xác.
-- [ ] 🟡 Chỉ ra rõ **model đang thiếu sót ở đâu** (domain nào, pattern nào model hay sai).
-- [ ] 🟡 Đề xuất hướng khắc phục cụ thể cho Tuần 2 (VD: cần thêm data domain X, cần feature Y).
+- [x] 🟡 Chỉ ra rõ **model đang thiếu sót ở đâu** (domain nào, pattern nào model hay sai).
+- [x] 🟡 Đề xuất hướng khắc phục cụ thể cho Tuần 2 (VD: cần thêm data domain X, cần feature Y).
 - [ ] 🟢 Lưu bộ test-cases thành file có cấu trúc (CSV/JSON) để tái sử dụng ở Tuần 2.
 
 #### c) Review Chéo & Issue Log
 
-- [ ] 🟡 Review Problem Statement: bài toán đã được giới hạn phạm vi rõ ràng chưa?
-- [ ] 🟡 Review cấu trúc repo: thư mục đã tổ chức hợp lý chưa (`src/`, `data/`, `docs/`, `tests/`...)?
-- [ ] 🟡 Ghi nhận tất cả issue vào Issue Log (Google Sheet / GitHub Issues) kèm mức priority.
+- [x] 🟡 Review Problem Statement: bài toán đã được giới hạn phạm vi rõ ràng chưa?
+- [x] 🟡 Review cấu trúc repo: thư mục đã tổ chức hợp lý chưa (`src/`, `data/`, `docs/`, `tests/`...)?
+- [x] 🟡 Ghi nhận tất cả issue vào Issue Log (Google Sheet / GitHub Issues) kèm mức priority.
 
 ---
 
@@ -196,7 +196,7 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 #### b) Tự động hóa Pipeline
 
 - [ ] 🟡 Script hoặc Makefile cho phép chạy toàn bộ pipeline E2E: `data → preprocess → train → evaluate`.
-- [] 🟡 Pipeline tự động ghi log kết quả (metrics, timestamp) vào file.
+- [ ] 🟡 Pipeline tự động ghi log kết quả (metrics, timestamp) vào file.
 - [ ] 🟢 Hỗ trợ truyền tham số dòng lệnh (chọn model, chọn dataset version).
 
 #### c) Chất lượng Code
@@ -220,16 +220,16 @@ Tài liệu này định nghĩa **tiêu chí nghiệm thu (Acceptance Criteria)*
 
 #### b) Báo cáo Đối chiếu Tuần 1 vs Tuần 2
 
-- [ ] 🔴 Bảng so sánh kết quả: cùng bộ test → kết quả Tuần 1 vs Tuần 2 (có cải thiện không?).
-- [ ] 🔴 Kết luận rõ ràng: model/data Tuần 2 **có tốt hơn** Tuần 1 không, ở điểm nào.
-- [ ] 🟡 Phân tích các trường hợp Tuần 1 sai nhưng Tuần 2 vẫn sai — đề xuất hướng tiếp theo.
+- [x] 🔴 Bảng so sánh kết quả: cùng bộ test → kết quả Tuần 1 vs Tuần 2 (có cải thiện không?).
+- [x] 🔴 Kết luận rõ ràng: model/data Tuần 2 **có tốt hơn** Tuần 1 không, ở điểm nào.
+- [x] 🟡 Phân tích các trường hợp Tuần 1 sai nhưng Tuần 2 vẫn sai — đề xuất hướng tiếp theo.
 
 #### c) Nghiệm thu Kỹ thuật
 
-- [ ] 🟡 Kiểm tra `preprocess_fixed.py` được import xuyên suốt (không có file nào hard-code riêng).
-- [ ] 🟡 Kiểm tra đồng bộ version: Data version ↔ Model version ↔ Pipeline đang load đúng.
-- [ ] 🟡 Kiểm tra tính hoàn thiện tài liệu: README, SETUP, báo cáo các role đã nộp đủ.
-- [ ] 🟢 Code review: ≥ 1 pull request từ mỗi role đã được review và approve.
+- [x] 🟡 Kiểm tra `preprocess_fixed.py` được import xuyên suốt (không có file nào hard-code riêng).
+- [x] 🟡 Kiểm tra đồng bộ version: Data version ↔ Model version ↔ Pipeline đang load đúng.
+- [x] 🟡 Kiểm tra tính hoàn thiện tài liệu: README, SETUP, báo cáo các role đã nộp đủ.
+- [x] 🟢 Code review: ≥ 1 pull request từ mỗi role đã được review và approve.
 
 ---
 
